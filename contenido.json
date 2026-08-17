@@ -1,0 +1,47 @@
+{
+  "curso": {
+    "nombre": "Ética y Psicología",
+    "nombreCorto": "Ética y Psicología",
+    "epigrafe": "Escuela de Psicología",
+    "bajada": "Método de discernimiento ético aplicado a los problemas del ejercicio profesional. Aquí quedan publicadas las presentaciones de cada sesión.",
+    "descripcion": "Sitio del curso Ética y Psicología: presentaciones de cada sesión.",
+    "ficha": [
+      {
+        "termino": "Docente",
+        "dato": "—"
+      },
+      {
+        "termino": "Semestre",
+        "dato": "Segundo semestre 2026"
+      },
+      {
+        "termino": "Sala",
+        "dato": "L13"
+      },
+      {
+        "termino": "Asistencia mínima",
+        "dato": "70%"
+      }
+    ],
+    "pie": "Material docente del curso. Las presentaciones se abren en el navegador, sin instalar nada, y se pueden leer también desde el teléfono."
+  },
+  "secciones": {
+    "sesiones": {
+      "titulo": "Sesiones",
+      "nota": "Cada sesión abre la presentación completa en una pestaña nueva. Se navega con las flechas del teclado o deslizando en pantallas táctiles.",
+      "vacio": "Todavía no hay sesiones publicadas."
+    },
+    "apps": {
+      "titulo": "Recursos",
+      "nota": "Materiales complementarios y aplicaciones del curso.",
+      "vacio": "Todavía no hay recursos publicados."
+    }
+  },
+  "sesiones": {
+    "S1 - Introducción.html": {
+      "fecha": "2026-08-17",
+      "resumen": "Presentación del curso, reflexión sobre el concepto de ética, discusión de casos actuales y acercamiento al método de discernimiento ético."
+    }
+  },
+  "apps": {}
+}

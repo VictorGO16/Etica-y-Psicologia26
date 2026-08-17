@@ -1,0 +1,12 @@
+{
+  "name": "etica-y-psicologia",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sitio del curso Ética y Psicología",
+  "scripts": {
+    "build": "node scripts/construir.mjs",
+    "vista": "node scripts/construir.mjs && node scripts/servidor.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

@@ -1,0 +1,7 @@
+publicado/
+node_modules/
+.DS_Store
+.vercel
+Thumbs.db
+LEEME.md
+LEEME.txt

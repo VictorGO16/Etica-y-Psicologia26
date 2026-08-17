@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITULO_PAGINA}}</title>
+<meta name="description" content="{{DESCRIPCION}}">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="{{TITULO_PAGINA}}">
+<meta property="og:description" content="{{DESCRIPCION}}">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<header class="barra">
+  <div class="contenedor barra__fila">
+    <span class="barra__marca">{{CURSO_CORTO}}</span>
+    <nav class="barra__nav" aria-label="Secciones">
+      {{NAV}}
+    </nav>
+  </div>
+</header>
+
+<main id="contenido">
+
+  <section class="portada">
+    <div class="contenedor">
+      <p class="epigrafe">{{EPIGRAFE}}</p>
+      <h1 class="portada__titulo">{{CURSO}}</h1>
+      <p class="portada__bajada">{{BAJADA}}</p>
+      <div class="regla regla--portada" aria-hidden="true"><span></span></div>
+      <dl class="ficha">
+        {{FICHA}}
+      </dl>
+    </div>
+  </section>
+
+{{SECCIONES}}
+
+</main>
+
+<footer class="pie">
+  <div class="contenedor pie__fila">
+    <p class="pie__nota">{{PIE}}</p>
+    <p class="pie__meta"><span class="mono">Actualizado {{ACTUALIZADO}}</span></p>
+  </div>
+</footer>
+
+<script src="sitio.js" defer></script>
+</body>
+</html>
