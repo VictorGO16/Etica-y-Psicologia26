@@ -1,12 +1,14 @@
 /* =========================================================
    Construye el sitio en la carpeta publicado/
-   No necesita instalar nada: sólo Node.
-   =========================================================
+   No necesita instalar dependencias: sólo Node >= 18.
+
    Qué hace:
    1. lee contenido.json
-   2. mira qué archivos .html hay en sesiones/ y en apps/
-   3. arma el index.html a partir de sitio/plantilla.html
-   4. copia todo a publicado/
+   2. reúne las sesiones declaradas y los HTML disponibles
+   3. construye la sección Recursos desde contenido.json
+   4. cualquier archivo declarado como recurso se puede descargar
+   5. si el archivo es PDF, agrega además un visor integrado
+   6. copia sesiones/ y recursos/ completos a publicado/
    ========================================================= */
 
 import { readFile, writeFile, readdir, mkdir, rm, copyFile, stat } from 'node:fs/promises';
@@ -28,8 +30,6 @@ const escapar = (t) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-// Normalizamos a NFC porque macOS guarda los nombres de archivo con las
-// tildes descompuestas (NFD) y así "Introducción" coincide igual.
 const clave = (t) => String(t ?? '').normalize('NFC');
 
 function fechaLegible(iso) {
@@ -45,6 +45,41 @@ function leerNombre(archivo) {
   const m = /^\s*[SsCc]\s*0*(\d+)\s*[-–—:.]\s*(.+?)\s*$/.exec(base);
   if (m) return { numero: Number(m[1]), titulo: m[2] };
   return { numero: null, titulo: base.trim() };
+}
+
+function rutaWeb(...partes) {
+  return partes
+    .filter(Boolean)
+    .flatMap((p) => String(p).split('/'))
+    .map((p) => encodeURIComponent(p))
+    .join('/');
+}
+
+function extension(archivo) {
+  return path.extname(String(archivo || '')).slice(1).toLowerCase();
+}
+
+function etiquetaTipo(archivo) {
+  const ext = extension(archivo);
+  return ext ? ext.toUpperCase() : 'ARCHIVO';
+}
+
+function slug(t) {
+  return String(t || 'recurso')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 54) || 'recurso';
+}
+
+function pesoLegible(bytes) {
+  if (!Number.isFinite(bytes)) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  const mb = bytes / (1024 * 1024);
+  return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`.replace('.', ',');
 }
 
 async function listarHtml(carpeta) {
@@ -74,13 +109,51 @@ async function copiarCarpeta(origen, destino) {
   return n;
 }
 
-/* ---------- armado de las piezas ---------- */
+async function infoArchivo(carpeta, archivo) {
+  const ruta = path.join(raiz, carpeta, archivo);
+  try {
+    const s = await stat(ruta);
+    if (!s.isFile()) return { existe: false, bytes: 0 };
+    return { existe: true, bytes: s.size };
+  } catch {
+    return { existe: false, bytes: 0 };
+  }
+}
+
+function youtubeId(url) {
+  try {
+    const u = new URL(String(url));
+    let id = '';
+    if (u.hostname === 'youtu.be') id = u.pathname.replace(/^\//, '').split('/')[0];
+    if (u.hostname.endsWith('youtube.com')) {
+      id = u.searchParams.get('v') || '';
+      if (!id && u.pathname.startsWith('/embed/')) id = u.pathname.split('/')[2] || '';
+      if (!id && u.pathname.startsWith('/shorts/')) id = u.pathname.split('/')[2] || '';
+    }
+    return /^[A-Za-z0-9_-]{6,20}$/.test(id) ? id : '';
+  } catch {
+    return '';
+  }
+}
+
+/* ---------- iconos ---------- */
 
 const FLECHA =
   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">' +
   '<path d="M2 8h11M9 4l4 4-4 4"/></svg>';
 
-async function reunir(carpeta, metadatos) {
+const DESCARGA =
+  '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">' +
+  '<path d="M8 2v8M5 7l3 3 3-3M3 13h10"/></svg>';
+
+const CHEVRON =
+  '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">' +
+  '<path d="M4 6l4 4 4-4"/></svg>';
+
+/* ---------- sesiones ---------- */
+
+async function reunirSesiones(metadatos) {
+  const carpeta = 'sesiones';
   const archivos = await listarHtml(path.join(raiz, carpeta));
   const publicados = new Set(archivos.map(clave));
 
@@ -90,7 +163,7 @@ async function reunir(carpeta, metadatos) {
     return {
       archivo,
       publicado: true,
-      href: `${carpeta}/${encodeURIComponent(archivo)}`,
+      href: rutaWeb(carpeta, archivo),
       numero: meta.numero ?? leido.numero,
       titulo: meta.titulo || leido.titulo,
       resumen: meta.resumen || '',
@@ -98,9 +171,6 @@ async function reunir(carpeta, metadatos) {
     };
   });
 
-  // Sesiones anunciadas en contenido.json cuyo archivo todavía no existe:
-  // se muestran atenuadas, para que el listado sea el programa del semestre
-  // y no sólo el archivo de lo ya dictado.
   for (const [nombre, meta] of Object.entries(metadatos)) {
     if (publicados.has(clave(nombre))) continue;
     const leido = leerNombre(nombre);
@@ -125,7 +195,7 @@ async function reunir(carpeta, metadatos) {
   return items;
 }
 
-function pintarFila(item, i) {
+function pintarFilaSesion(item, i) {
   const numero = item.numero != null ? String(item.numero).padStart(2, '0') : String(i + 1).padStart(2, '0');
   const fecha = fechaLegible(item.fecha);
 
@@ -144,12 +214,8 @@ function pintarFila(item, i) {
             </div>`;
 
   const bloque = item.publicado
-    ? `          <a class="fila__enlace" href="${escapar(item.href)}" target="_blank" rel="noopener">
-${interior}
-          </a>`
-    : `          <div class="fila__enlace">
-${interior}
-          </div>`;
+    ? `          <a class="fila__enlace" href="${escapar(item.href)}" target="_blank" rel="noopener">\n${interior}\n          </a>`
+    : `          <div class="fila__enlace">\n${interior}\n          </div>`;
 
   return `        <li class="fila${item.publicado ? '' : ' fila--espera'} aparece" data-orden="${i}">
 ${bloque}
@@ -157,27 +223,208 @@ ${bloque}
         </li>`;
 }
 
-function pintarSeccion(id, config, items, carpeta) {
-  const listas = items.filter((x) => x.publicado).length;
-  const conteo = listas === 1 ? '1 publicada' : `${listas} publicadas`;
+function pintarSesiones(config, items) {
+  const publicadas = items.filter((x) => x.publicado).length;
+  const conteo = publicadas === 1 ? '1 publicada' : `${publicadas} publicadas`;
 
   const cuerpo = items.length
-    ? `      <ul class="listado">
-${items.map(pintarFila).join('\n')}
-      </ul>`
+    ? `      <ul class="listado">\n${items.map(pintarFilaSesion).join('\n')}\n      </ul>`
     : `      <div class="vacio">
-        <p>${escapar(config.vacio || 'Todavía no hay nada publicado aquí.')}</p>
-        <p>Deja un archivo <code>.html</code> en la carpeta <code>${escapar(carpeta)}/</code>, con un nombre como <code>S1 - Título.html</code>, y aparecerá en esta lista.</p>
+        <p>${escapar(config.vacio || 'Todavía no hay sesiones publicadas.')}</p>
+        <p>Deja un archivo <code>.html</code> en <code>sesiones/</code> y agrega sus datos en <code>contenido.json</code>.</p>
       </div>`;
 
-  return `  <section class="seccion" id="${escapar(id)}">
+  return `  <section class="seccion" id="sesiones">
     <div class="contenedor">
       <div class="seccion__encabezado">
-        <h2 class="seccion__titulo">${escapar(config.titulo || id)}</h2>
+        <h2 class="seccion__titulo">${escapar(config.titulo || 'Sesiones')}</h2>
         ${items.length ? `<span class="seccion__conteo">${conteo}</span>` : ''}
       </div>
       ${config.nota ? `<p class="seccion__nota">${escapar(config.nota)}</p>` : ''}
 ${cuerpo}
+    </div>
+  </section>`;
+}
+
+/* ---------- recursos ---------- */
+
+async function prepararArchivos(items, subcarpeta) {
+  return Promise.all((items || []).map(async (item) => {
+    const info = await infoArchivo(path.join('recursos', subcarpeta), item.archivo);
+    return {
+      ...item,
+      existe: info.existe,
+      bytes: info.bytes,
+      ext: extension(item.archivo),
+      tipo: etiquetaTipo(item.archivo),
+      href: rutaWeb('recursos', subcarpeta, item.archivo)
+    };
+  }));
+}
+
+function metaArchivo(item) {
+  const partes = [item.tipo];
+  if (item.existe && item.bytes) partes.push(pesoLegible(item.bytes));
+  return partes.join(' · ');
+}
+
+function botonDescarga(item, texto = 'Descargar') {
+  if (!item.existe) {
+    return `<span class="accion accion--inhabilitada" aria-disabled="true">Archivo no disponible</span>`;
+  }
+  return `<a class="accion accion--secundaria" href="${escapar(item.href)}" download="${escapar(item.archivo)}">${escapar(texto)} ${DESCARGA}</a>`;
+}
+
+function bloqueVisorPdf(item, id) {
+  if (!item.existe || item.ext !== 'pdf') return '';
+  return `        <button class="accion accion--primaria js-desplegar" type="button" aria-expanded="false" aria-controls="${escapar(id)}" data-abre="${escapar(id)}" data-texto-abierto="Cerrar PDF" data-texto-cerrado="Ver PDF">
+          <span class="js-desplegar-texto">Ver PDF</span> ${CHEVRON}
+        </button>`;
+}
+
+function panelPdf(item, id, titulo) {
+  if (!item.existe || item.ext !== 'pdf') return '';
+  return `      <div class="recurso__panel" id="${escapar(id)}" hidden>
+        <div class="visor visor--pdf">
+          <iframe title="PDF: ${escapar(titulo)}" loading="lazy" data-src="${escapar(item.href)}#view=FitH" src="about:blank"></iframe>
+        </div>
+        <div class="recurso__panel-pie">
+          <a href="${escapar(item.href)}" target="_blank" rel="noopener">Abrir PDF en otra pestaña ${FLECHA}</a>
+          <a href="${escapar(item.href)}" download="${escapar(item.archivo)}">Descargar PDF ${DESCARGA}</a>
+        </div>
+      </div>`;
+}
+
+function pintarLiteratura(item, i) {
+  const id = `pdf-lit-${i + 1}-${slug(item.titulo)}`;
+  const lectura = [item.lectura, item.paginas].filter(Boolean).join(' · ');
+  return `    <article class="recurso recurso--literatura aparece" data-orden="${i}">
+      <div class="recurso__superior">
+        <div>
+          ${item.autor ? `<p class="recurso__autor">${escapar(item.autor)}</p>` : ''}
+          <h4 class="recurso__titulo"><em>${escapar(item.titulo)}</em></h4>
+        </div>
+        <span class="recurso__tipo">${escapar(metaArchivo(item))}</span>
+      </div>
+      ${lectura ? `<p class="lectura"><span class="lectura__etiqueta">Lectura</span><span class="lectura__detalle">${escapar(lectura)}</span></p>` : ''}
+      <div class="recurso__acciones">
+${bloqueVisorPdf(item, id)}
+        ${botonDescarga(item, item.ext === 'pdf' ? 'Descargar PDF' : 'Descargar archivo')}
+        ${item.existe && item.ext === 'pdf' ? `<noscript><a class="accion accion--primaria" href="${escapar(item.href)}" target="_blank" rel="noopener">Abrir PDF ${FLECHA}</a></noscript>` : ''}
+      </div>
+${panelPdf(item, id, item.titulo)}
+    </article>`;
+}
+
+function pintarVideo(item, i) {
+  const idVideo = youtubeId(item.url);
+  const idPanel = `video-${i + 1}-${slug(item.titulo)}`;
+  const reproducible = Boolean(idVideo);
+  return `    <article class="recurso recurso--video aparece" data-orden="${i}">
+      <div class="recurso__superior">
+        <div>
+          <p class="recurso__autor">YouTube</p>
+          <h4 class="recurso__titulo">${escapar(item.titulo)}</h4>
+        </div>
+        <span class="recurso__tipo">Video</span>
+      </div>
+      <div class="recurso__acciones">
+        ${reproducible ? `<button class="accion accion--primaria js-desplegar" type="button" aria-expanded="false" aria-controls="${escapar(idPanel)}" data-abre="${escapar(idPanel)}" data-texto-abierto="Cerrar video" data-texto-cerrado="Ver video"><span class="js-desplegar-texto">Ver video</span> ${CHEVRON}</button>` : ''}
+        <a class="accion accion--secundaria" href="${escapar(item.url)}" target="_blank" rel="noopener">Abrir en YouTube ${FLECHA}</a>
+      </div>
+      ${reproducible ? `<div class="recurso__panel" id="${escapar(idPanel)}" hidden>
+        <div class="visor visor--video">
+          <iframe title="Video: ${escapar(item.titulo)}" loading="lazy" data-src="https://www.youtube-nocookie.com/embed/${escapar(idVideo)}?rel=0" src="about:blank" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+      </div>` : ''}
+      ${reproducible ? `<noscript><p class="sin-js">JavaScript está desactivado. Puedes abrir el video con el enlace de YouTube.</p></noscript>` : ''}
+    </article>`;
+}
+
+function pintarOtraClase(item, i) {
+  const id = `pdf-otra-${i + 1}-${slug(item.titulo)}`;
+  return `    <article class="recurso recurso--archivo aparece" data-orden="${i}">
+      <div class="recurso__superior">
+        <div>
+          ${item.autor ? `<p class="recurso__autor">${escapar(item.autor)}</p>` : ''}
+          <h4 class="recurso__titulo">${escapar(item.titulo)}</h4>
+        </div>
+        <span class="recurso__tipo">${escapar(metaArchivo(item))}</span>
+      </div>
+      <div class="recurso__acciones">
+${bloqueVisorPdf(item, id)}
+        ${botonDescarga(item, item.ext === 'pdf' ? 'Descargar PDF' : `Descargar ${item.tipo}`)}
+        ${item.existe && item.ext === 'pdf' ? `<noscript><a class="accion accion--primaria" href="${escapar(item.href)}" target="_blank" rel="noopener">Abrir PDF ${FLECHA}</a></noscript>` : ''}
+      </div>
+${panelPdf(item, id, item.titulo)}
+    </article>`;
+}
+
+function pintarOtroSitio(item, i) {
+  return `    <article class="recurso recurso--sitio aparece" data-orden="${i}">
+      <div class="recurso__superior">
+        <div>
+          <p class="recurso__autor">Sitio externo</p>
+          <h4 class="recurso__titulo">${escapar(item.titulo)}</h4>
+          ${item.descripcion ? `<p class="recurso__descripcion">${escapar(item.descripcion)}</p>` : ''}
+        </div>
+      </div>
+      <div class="recurso__acciones">
+        <a class="accion accion--primaria" href="${escapar(item.url)}" target="_blank" rel="noopener">Visitar sitio ${FLECHA}</a>
+      </div>
+    </article>`;
+}
+
+function pintarSubseccion(id, numero, config, items, render, unidad) {
+  const cantidad = items.length;
+  const conteo = `${cantidad} ${cantidad === 1 ? unidad.singular : unidad.plural}`;
+  const cuerpo = cantidad
+    ? `<div class="recursos__lista">\n${items.map(render).join('\n')}\n  </div>`
+    : `<div class="vacio"><p>Todavía no hay recursos en esta subsección.</p></div>`;
+
+  return `<section class="recursos__grupo" id="${escapar(id)}">
+  <div class="subseccion__encabezado">
+    <div class="subseccion__titulo-wrap">
+      <span class="subseccion__numero" aria-hidden="true">${String(numero).padStart(2, '0')}</span>
+      <div>
+        <h3 class="subseccion__titulo">${escapar(config.titulo || id)}</h3>
+        ${config.nota ? `<p class="subseccion__nota">${escapar(config.nota)}</p>` : ''}
+      </div>
+    </div>
+    <span class="seccion__conteo">${escapar(conteo)}</span>
+  </div>
+  ${cuerpo}
+</section>`;
+}
+
+function pintarRecursos(config, recursos) {
+  const literatura = recursos.literatura || [];
+  const videos = recursos.videos || [];
+  const otras = recursos.otrasClases || [];
+  const otrosSitios = recursos.otrosSitios || [];
+  const total = literatura.length + videos.length + otras.length + otrosSitios.length;
+
+  return `  <section class="seccion seccion--recursos" id="recursos">
+    <div class="contenedor">
+      <div class="seccion__encabezado">
+        <h2 class="seccion__titulo">${escapar(config.titulo || 'Recursos')}</h2>
+        <span class="seccion__conteo">${total} ${total === 1 ? 'recurso' : 'recursos'}</span>
+      </div>
+      ${config.nota ? `<p class="seccion__nota">${escapar(config.nota)}</p>` : ''}
+      <nav class="recursos__indice" aria-label="Tipos de recursos">
+        <a href="#literatura">Literatura</a>
+        <a href="#videos">Videos</a>
+        <a href="#otras-clases">Otras clases</a>
+        <a href="#otros-sitios">Otros sitios</a>
+      </nav>
+
+${pintarSubseccion('literatura', 1, config.literatura || {}, literatura, pintarLiteratura, { singular: 'texto', plural: 'textos' })}
+
+${pintarSubseccion('videos', 2, config.videos || {}, videos, pintarVideo, { singular: 'video', plural: 'videos' })}
+
+${pintarSubseccion('otras-clases', 3, config.otrasClases || {}, otras, pintarOtraClase, { singular: 'archivo', plural: 'archivos' })}
+
+${pintarSubseccion('otros-sitios', 4, config.otrosSitios || {}, otrosSitios, pintarOtroSitio, { singular: 'sitio', plural: 'sitios' })}
     </div>
   </section>`;
 }
@@ -194,23 +441,26 @@ async function construir() {
   const metaSesiones = Object.fromEntries(
     Object.entries(contenido.sesiones || {}).map(([k, v]) => [clave(k), v])
   );
-  const metaApps = Object.fromEntries(
-    Object.entries(contenido.apps || {}).map(([k, v]) => [clave(k), v])
-  );
+  const sesiones = await reunirSesiones(metaSesiones);
 
-  const sesiones = await reunir('sesiones', metaSesiones);
-  const apps = await reunir('apps', metaApps);
+  const recursosCrudos = contenido.recursos || {};
+  const recursos = {
+    literatura: await prepararArchivos(recursosCrudos.literatura || [], 'literatura'),
+    videos: recursosCrudos.videos || [],
+    otrasClases: await prepararArchivos(recursosCrudos.otrasClases || [], 'otras-clases'),
+    otrosSitios: recursosCrudos.otrosSitios || []
+  };
 
+  const tieneRecursos = recursos.literatura.length || recursos.videos.length || recursos.otrasClases.length || recursos.otrosSitios.length;
   const bloques = [
-    pintarSeccion('sesiones', secciones.sesiones || { titulo: 'Sesiones' }, sesiones, 'sesiones')
+    pintarSesiones(secciones.sesiones || { titulo: 'Sesiones' }, sesiones)
   ];
-  // La sección de recursos sólo aparece cuando hay algo dentro.
-  if (apps.length) {
-    bloques.push(pintarSeccion('recursos', secciones.apps || { titulo: 'Recursos' }, apps, 'apps'));
-  }
+  if (tieneRecursos) bloques.push(pintarRecursos(secciones.recursos || { titulo: 'Recursos' }, recursos));
 
-  const enlaces = [`<a href="#sesiones">${escapar((secciones.sesiones || {}).titulo || 'Sesiones')}</a>`];
-  if (apps.length) enlaces.push(`<a href="#recursos">${escapar((secciones.apps || {}).titulo || 'Recursos')}</a>`);
+  const enlaces = [
+    `<a href="#sesiones">${escapar((secciones.sesiones || {}).titulo || 'Sesiones')}</a>`
+  ];
+  if (tieneRecursos) enlaces.push(`<a href="#recursos">${escapar((secciones.recursos || {}).titulo || 'Recursos')}</a>`);
 
   const ficha = (curso.ficha || [])
     .map((f) => `<div><dt>${escapar(f.termino)}</dt><dd>${escapar(f.dato)}</dd></div>`)
@@ -241,26 +491,24 @@ async function construir() {
   }
 
   const nS = await copiarCarpeta(path.join(raiz, 'sesiones'), path.join(salida, 'sesiones'));
-  const nA = await copiarCarpeta(path.join(raiz, 'apps'), path.join(salida, 'apps'));
+  const nR = await copiarCarpeta(path.join(raiz, 'recursos'), path.join(salida, 'recursos'));
 
-  let pesado = [];
-  for (const item of [...sesiones, ...apps]) {
-    const carpeta = sesiones.includes(item) ? 'sesiones' : 'apps';
-    try {
-      const s = await stat(path.join(raiz, carpeta, item.archivo));
-      if (s.size > 45 * 1024 * 1024) pesado.push(`${item.archivo} (${(s.size / 1048576).toFixed(0)} MB)`);
-    } catch {}
-  }
+  const archivosRecursos = [...recursos.literatura, ...recursos.otrasClases];
+  const faltantes = archivosRecursos.filter((x) => !x.existe);
+  const pesados = archivosRecursos.filter((x) => x.existe && x.bytes > 45 * 1024 * 1024);
 
   console.log(`\n  Sitio construido en publicado/`);
-  console.log(`  ${sesiones.length} sesión(es), ${apps.length} recurso(s), ${nS + nA} archivo(s) copiado(s).`);
-  if (!sesiones.length) {
-    console.log(`  Aviso: la carpeta sesiones/ está vacía; el sitio se publica igual, con el aviso correspondiente.`);
+  console.log(`  ${sesiones.length} sesión(es), ${recursos.literatura.length} lectura(s), ${recursos.videos.length} video(s), ${recursos.otrasClases.length} archivo(s) de otras clases, ${recursos.otrosSitios.length} sitio(s) externo(s).`);
+  console.log(`  ${nS + nR} archivo(s) copiado(s) al sitio publicado.`);
+
+  if (faltantes.length) {
+    console.log(`\n  Aviso: faltan ${faltantes.length} archivo(s) declarados en contenido.json:`);
+    faltantes.forEach((x) => console.log(`    · ${x.archivo}`));
   }
-  if (pesado.length) {
-    console.log(`\n  Aviso: hay archivos sobre 45 MB. GitHub avisa sobre los 50 MB y rechaza sobre los 100 MB.`);
-    pesado.forEach((p) => console.log(`    · ${p}`));
-    console.log(`  Mira la sección "Si un HTML pesa demasiado" del LEEME.md.`);
+
+  if (pesados.length) {
+    console.log(`\n  Aviso: hay recursos sobre 45 MB. GitHub avisa sobre 50 MB y rechaza archivos sobre 100 MB.`);
+    pesados.forEach((x) => console.log(`    · ${x.archivo} (${pesoLegible(x.bytes)})`));
   }
   console.log('');
 }

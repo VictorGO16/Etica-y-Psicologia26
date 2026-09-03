@@ -3,8 +3,8 @@
     "nombre": "Ética y Psicología",
     "nombreCorto": "Ética y Psicología",
     "epigrafe": "Escuela de Psicología",
-    "bajada": "Método de discernimiento ético aplicado a los problemas del ejercicio profesional. Aquí quedan publicadas las presentaciones de cada sesión.",
-    "descripcion": "Sitio del curso Ética y Psicología: presentaciones de cada sesión.",
+    "bajada": "Método de discernimiento ético aplicado a los problemas del ejercicio profesional. Aquí quedan publicadas las presentaciones, lecturas, videos y materiales complementarios del curso.",
+    "descripcion": "Sitio del curso Ética y Psicología: sesiones, lecturas, videos y recursos docentes.",
     "ficha": [
       {
         "termino": "Docente",
@@ -23,7 +23,7 @@
         "dato": "75%"
       }
     ],
-    "pie": "Material docente del curso. Las presentaciones se abren en el navegador, sin instalar nada, y se pueden leer también desde el teléfono."
+    "pie": "Material docente del curso."
   },
   "secciones": {
     "sesiones": {
@@ -31,10 +31,23 @@
       "nota": "Cada sesión abre la presentación completa en una pestaña nueva. Se navega con las flechas del teclado o deslizando en pantallas táctiles.",
       "vacio": "Todavía no hay sesiones publicadas."
     },
-    "apps": {
+    "recursos": {
       "titulo": "Recursos",
-      "nota": "Materiales complementarios y aplicaciones del curso.",
-      "vacio": "Todavía no hay recursos publicados."
+      "literatura": {
+        "titulo": "Literatura",
+        "nota": "Textos de lectura obligatoria o recomendada. Bajo cada título se indica el tramo de lectura esperado."
+      },
+      "videos": {
+        "titulo": "Videos",
+        "nota": "Material audiovisual para introducir o reforzar los principales enfoques éticos trabajados en el curso."
+      },
+      "otrasClases": {
+        "titulo": "Otras clases",
+        "nota": "Presentaciones y archivos de apoyo provenientes de otras clases o docentes."
+      },
+      "otrosSitios": {
+        "titulo": "Otros sitios"
+      }
     }
   },
   "sesiones": {
@@ -47,5 +60,61 @@
       "resumen": "Presentación del método del discernimiento ético."
     }
   },
-  "apps": {}
+  "recursos": {
+    "literatura": [
+      {
+        "autor": "Aristóteles",
+        "titulo": "Ética a Nicómaco",
+        "archivo": "Aristóteles - Ética a Nicómaco.pdf",
+        "lectura": "Libro II",
+        "paginas": "12 páginas"
+      },
+      {
+        "autor": "John Stuart Mill",
+        "titulo": "El utilitarismo",
+        "archivo": "Mill - El utilitarismo.pdf",
+        "lectura": "Capítulos 1 y 2",
+        "paginas": "12 páginas"
+      },
+      {
+        "autor": "Carol Gilligan",
+        "titulo": "In a Different Voice",
+        "archivo": "Gilligan - In a different voice.pdf",
+        "lectura": "Capítulo 1",
+        "paginas": "18 páginas"
+      }
+    ],
+    "videos": [
+      {
+        "titulo": "Aristotle & Virtue Theory: Crash Course Philosophy #38",
+        "url": "https://www.youtube.com/watch?v=PrvtOWEXDIQ"
+      },
+      {
+        "titulo": "Kant & Categorical Imperatives: Crash Course Philosophy #35",
+        "url": "https://www.youtube.com/watch?v=8bIys6JoEDw"
+      },
+      {
+        "titulo": "Utilitarianism: Crash Course Philosophy #36",
+        "url": "https://www.youtube.com/watch?v=-a739VjqdSI"
+      },
+      {
+        "titulo": "Monkeys and Morality: Crash Course Psychology #19",
+        "url": "https://www.youtube.com/watch?v=YcQg1EshfIE"
+      }
+    ],
+    "otrasClases": [
+      {
+        "autor": "Francisco De Ferari",
+        "titulo": "Sesión 3: Introducción a la ética y la moral",
+        "archivo": "PPT Sesión 3_ Introducción a la ética y la moral.pptx"
+      }
+    ],
+    "otrosSitios": [
+      {
+        "titulo": "Epistemología y Metodología 2026",
+        "url": "https://episte-app.vercel.app/",
+        "descripcion": "Sitio diseñado para la cátedra de Epistemología y Metodología. Puede servirles como recurso complementario para explorar algunos autores, como Aristóteles y Kant, desde sus contribuciones a la epistemología y los métodos de investigación."
+      }
+    ]
+  }
 }

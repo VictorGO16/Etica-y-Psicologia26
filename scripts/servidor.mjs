@@ -1,6 +1,6 @@
 /* Servidor local para ver el sitio antes de publicarlo.
    No instala nada: usa sólo lo que trae Node.
-   Uso:  npm run vista     (construye y luego levanta esto)  */
+   Uso: npm run vista */
 
 import { createServer } from 'node:http';
 import { createReadStream } from 'node:fs';
@@ -22,6 +22,12 @@ const TIPOS = {
   '.jpeg': 'image/jpeg',
   '.webp': 'image/webp',
   '.pdf': 'application/pdf',
+  '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  '.zip': 'application/zip',
+  '.txt': 'text/plain; charset=utf-8',
+  '.csv': 'text/csv; charset=utf-8',
   '.woff2': 'font/woff2'
 };
 
