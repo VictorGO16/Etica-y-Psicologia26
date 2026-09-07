@@ -1,4 +1,4 @@
-import { db, reply, fail, problem, body, text, RESULTADOS, publicRecord } from './_shared.js';
+import { db, reply, fail, problem, body, text, resultFor, publicRecord } from './_shared.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return reply(res, 405, { error: 'Método no permitido.' });
@@ -16,7 +16,9 @@ export default async function handler(req, res) {
     if (b.choice !== 'none' && b.choice !== b.destination) {
       throw problem(400, 'La elección y la trayectoria no coinciden.');
     }
-    const result = RESULTADOS[scene - 1][b.destination === 'left' ? 0 : 1];
+    const scenarioVersion = b.scenarioVersion === undefined ? 1 : b.scenarioVersion;
+    if (![1, 2].includes(scenarioVersion)) throw problem(400, 'La versión del escenario no es válida.');
+    const result = resultFor(scene, b.destination, scenarioVersion);
     const sql = db();
     // La generación evita que una partida anterior vuelva a poblar el registro tras cleanall.
     // La combinación sesión + escenario evita guardar más de una respuesta por caso.

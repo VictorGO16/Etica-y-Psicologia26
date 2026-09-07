@@ -2,10 +2,24 @@ import { neon } from '@neondatabase/serverless';
 
 export const RESULTADOS = [
   ['Mató 3 personas', 'Mató 1 persona'],
+  ['Mató a sus cercanos', 'Mató 10 personas'],
+  ['Mató 30 bebés', 'Eliminó todas las IA del mundo'],
+  ['Mató a 3 personas bajo su cuidado', 'Mató 15 personas'],
+];
+
+// Cached clients and sessions started before the revision keep their original case.
+// New sessions explicitly send scenarioVersion: 2. No database migration is required.
+export const RESULTADOS_V1 = [
+  ['Mató 3 personas', 'Mató 1 persona'],
   ['Mató a sus cercanos', 'Mató 15 personas'],
   ['Mató 30 bebés', 'Eliminó todas las IA del mundo'],
   ['Mató a 3 personas bajo su cuidado', 'Mató 15 personas desconocidas'],
 ];
+
+export function resultFor(scene, destination, version) {
+  const table = version === 2 ? RESULTADOS : RESULTADOS_V1;
+  return table[scene - 1][destination === 'left' ? 0 : 1];
+}
 
 export function db() {
   if (!process.env.DATABASE_URL) throw new Error('Falta configurar DATABASE_URL.');

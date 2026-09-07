@@ -19,6 +19,64 @@
 @media(max-width:370px){.shell{padding-left:14px;padding-right:14px}.brand-text{font-size:9px}.destination{padding:12px 9px;min-height:220px}.dest-quantity{font-size:35px}.dest-title{font-size:12px}.dest-description{font-size:10px}.choice{padding:12px 7px}.choice-title{font-size:14px}.choice-note{font-size:9px}.stage-footer{font-size:8px}.figures{gap:2px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 @media print{body{background:white}.shell{max-width:none;padding:0}.masthead,.hero,.play-header,.instruction,.stage,.choices,.motion,.result,.complete,.results-actions,.footer,.settings{display:none!important}.results{display:block!important;margin:0;border:0;padding:0}.records{grid-template-columns:repeat(2,1fr)}.record,.stat{break-inside:avoid}.bar-fill{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+
+/* Results: one complete scenario at a time, followed by the next. */
+.shell.results-wide{max-width:1680px}
+.shell.results-wide > .masthead,
+.shell.results-wide > .hero,
+.shell.results-wide > #game,
+.shell.results-wide > .footer{max-width:1180px;margin-left:auto;margin-right:auto}
+.scenario-block{border-top:1px solid var(--ink);padding:30px 0 42px;scroll-margin-top:24px}
+.scenario-block:first-child{border-top:0;padding-top:0}
+.scenario-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:23px}
+.scenario-head h3{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:clamp(30px,3.2vw,45px);letter-spacing:-.045em;line-height:1.12;margin:7px 0 0}
+.scenario-head .results-count{padding-bottom:4px}
+.scenario-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0 24px}
+.scenario-stats > div{min-width:0}
+.scenario-stats .stat-subhead{margin:0 0 12px}
+.scenario-stats .bar-row{grid-template-columns:minmax(120px,1.3fr) minmax(55px,1fr) 32px;gap:12px}
+.scenario-record-head{display:flex;align-items:baseline;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:27px 0 12px}
+.scenario-record-head h4{font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:400;letter-spacing:-.035em;line-height:1.15;margin:0}
+.scenario-records{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 28px}
+.scenario-records .record{padding:19px 0 25px}
+.scenario-records .record h5{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:clamp(22px,2vw,28px);letter-spacing:-.035em;line-height:1.22;margin:0 0 13px;color:var(--ink)}
+.scenario-records .record-meta{font-size:12px;gap:4px;margin-bottom:13px}
+.scenario-records .record blockquote{font-size:15px;line-height:1.55}
+.scenario-previous{font-size:11px;line-height:1.5;color:var(--quiet);margin:12px 0 0}
+.scenario-records .record-version{display:block;font-size:10px;color:var(--quiet);margin:-5px 0 12px}
+.results.projection .scenario-records{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 36px}
+.results.projection .scenario-records .record h5{font-size:clamp(27px,2.7vw,38px)}
+.results.projection .scenario-records .record blockquote{font-size:20px}
+.results.projection .scenario-records .record-meta{font-size:15px}
+.results.projection .scenario-stats .bar-row{font-size:15px;grid-template-columns:minmax(170px,1.3fr) minmax(50px,1fr) 36px}
+.results.projection .scenario-stats .bar-row strong{font-size:15px}
+@media(min-width:761px) and (max-width:1150px){
+ .scenario-records{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .scenario-stats{gap:20px}
+ .scenario-stats .bar-row{grid-template-columns:minmax(100px,1fr) minmax(45px,.7fr) 28px;gap:8px}
+}
+@media(max-width:760px){
+ .shell.results-wide{max-width:1180px}
+ .scenario-block{padding:24px 0 32px}
+ .scenario-head{margin-bottom:18px}
+ .scenario-stats{grid-template-columns:1fr;gap:22px;padding:18px 0 20px}
+ .scenario-stats .bar-row{grid-template-columns:minmax(112px,1.15fr) minmax(50px,1fr) 26px;gap:8px}
+ .scenario-records,.results.projection .scenario-records{grid-template-columns:1fr;gap:0}
+ .scenario-records .record{padding:19px 0 24px}
+ .scenario-records .record h5{font-size:26px}
+ .results.projection .scenario-records .record h5{font-size:30px}
+ .results.projection .scenario-stats .bar-row{grid-template-columns:minmax(130px,1.2fr) minmax(45px,1fr) 35px;gap:8px;font-size:14px}
+ .results.projection .scenario-stats .bar-row strong{font-size:14px}
+}
+@media(max-width:370px){.scenario-stats .bar-row{grid-template-columns:minmax(90px,1fr) minmax(35px,.7fr) 24px;gap:6px}}
+@media print{
+ .shell.results-wide{max-width:none}
+ .scenario-block{break-inside:auto;page-break-inside:auto}
+ .scenario-head,.scenario-record-head{break-after:avoid}
+ .scenario-records,.results.projection .scenario-records{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .scenario-records .record{break-inside:avoid}
+ .scenario-stats{break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -33,7 +91,7 @@
 <section class="result" id="result" hidden aria-live="polite"><div class="smallcaps" id="result-scene">Escenario 01 · Resultado</div><h2 class="result-title" id="result-title"></h2><div class="result-meta"><span><strong>Elección:</strong> <span id="result-choice"></span></span><span><strong>Nombre:</strong> <span id="result-name"></span></span></div><form class="reason-form" id="reason-form"><label class="field-label" for="reason">¿Por qué tomaste esa decisión?</label><textarea class="reason-field" id="reason" name="reason" maxlength="4000" required placeholder="Escribe tu justificación..."></textarea><p class="message" id="reason-error" role="alert" hidden></p><button class="action" id="save-button" type="submit">Registrar respuesta <span aria-hidden="true">↗</span></button></form><div class="saved" id="saved" hidden><div class="smallcaps">Respuesta registrada</div><p class="saved-quote" id="saved-quote"></p><button class="action" id="next" type="button">Siguiente escenario <span aria-hidden="true">→</span></button><p id="last-saved" class="notice" hidden>Las cuatro respuestas quedaron registradas.</p></div></section>
 <section class="complete" id="complete" hidden><div class="smallcaps">Cuatro decisiones · Cuatro respuestas</div><h2 class="display">Ya está.<br>Quedan tus razones.</h2><p>Tus respuestas quedaron registradas. Puedes revisar lo que escribiste o abrir los resultados cuando estén disponibles.</p><button class="action light" id="review" type="button">Revisar mis respuestas <span aria-hidden="true">↗</span></button></section>
 </section>
-<section class="results" id="results" hidden><header class="results-header"><div><div class="smallcaps">Registro de la clase</div><h2 class="display">Resultados.</h2><div class="results-count" id="results-count"></div></div><div class="results-actions"><label class="smallcaps" for="result-filter">Escenario</label><select id="result-filter" class="filter"><option value="all">Todos</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option></select><button class="tool-btn" id="projection" type="button" aria-pressed="false">Proyección</button><button class="tool-btn" id="refresh" type="button">Actualizar</button></div></header><div id="stats"></div><section class="record-section"><header class="record-heading"><h3>Respuestas</h3><div class="results-count" id="record-count"></div></header><div class="records" id="records"></div></section></section>
+<section class="results" id="results" hidden><header class="results-header"><div><div class="smallcaps">Registro de la clase</div><h2 class="display">Resultados.</h2><div class="results-count" id="results-count"></div></div><div class="results-actions"><label class="smallcaps" for="result-filter">Escenario</label><select id="result-filter" class="filter"><option value="all">Todos</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option></select><button class="tool-btn" id="projection" type="button" aria-pressed="false">Proyección</button><button class="tool-btn" id="refresh" type="button">Actualizar</button></div></header><div id="scenario-results"></div></section>
 <footer class="footer"><span>El tranvía · Experiencia de decisiones</span><span id="mode-label">Registro local</span></footer>
 <dialog class="settings" id="settings" aria-labelledby="settings-title"><div class="settings-inner"><div class="settings-head"><h2 id="settings-title">Configuración</h2><button class="close-btn" type="button" id="close-settings" aria-label="Cerrar">×</button></div><form id="code-form" autocomplete="off"><label class="field-label" for="code">Código</label><input class="text-field" id="code" maxlength="100" autocomplete="off" spellcheck="false" placeholder="Escribe el código"><p class="message" id="code-error" role="alert" hidden></p><button class="action" type="submit">Ingresar código <span aria-hidden="true">→</span></button></form><div id="clear-confirm" hidden><p class="confirm-text">Se borrarán todas las respuestas de este registro y se reiniciará la experiencia. Esta acción no se puede deshacer.</p><p class="message" id="clear-error" role="alert" hidden></p><div class="confirm-actions"><button class="action light" type="button" id="cancel-clear">Cancelar</button><button class="action danger" type="button" id="do-clear">Borrar todo</button></div></div></div></dialog>
 </main>
@@ -43,17 +101,22 @@ const root=document.getElementById('app');if(root.dataset.ready)return;root.data
 const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
 const SCENES=[
  {left:{quantity:'03',title:'3 personas',description:'',icons:['person','person','person'],result:'Mató 3 personas'},right:{quantity:'01',title:'1 persona',description:'',icons:['person'],result:'Mató 1 persona'}},
- {left:{quantity:'03',title:'Tus cercanos',description:'Tu mejor amigo, tu pareja y tu mascota.',icons:['person','person','pet'],result:'Mató a sus cercanos'},right:{quantity:'15',title:'15 personas',description:'',icons:['person','person','person','person','person'],more:'+10',result:'Mató 15 personas'}},
+ {left:{quantity:'03',title:'Tus cercanos',description:'Tu mejor amigo, tu pareja y tu mascota.',icons:['person','person','pet'],result:'Mató a sus cercanos'},right:{quantity:'10',title:'10 personas',description:'',icons:['person','person','person','person','person'],more:'+5',result:'Mató 10 personas'}},
  {left:{quantity:'30',title:'30 bebés recién nacidos',description:'',icons:['baby','baby','baby','baby','baby'],more:'+25',result:'Mató 30 bebés'},right:{quantity:'∞',title:'Todas las IA del mundo',description:'Si el tranvía pasa por esta vía, todas las IA del planeta desaparecen inmediatamente.',icons:['chip','chip','chip','chip'],result:'Eliminó todas las IA del mundo'}},
- {left:{quantity:'03',title:'3 personas bajo tu cuidado',description:'Has asumido su cuidado y no pueden protegerse por sí mismas.',icons:['person','person','person'],result:'Mató a 3 personas bajo su cuidado'},right:{quantity:'15',title:'15 personas desconocidas',description:'',icons:['person','person','person','person','person'],more:'+10',result:'Mató 15 personas desconocidas'}}
+ {left:{quantity:'03',title:'3 personas bajo tu cuidado',description:'Has asumido su cuidado y no pueden protegerse por sí mismas.',icons:['person','person','person'],result:'Mató a 3 personas bajo su cuidado'},right:{quantity:'15',title:'15 personas',description:'',icons:['person','person','person','person','person'],more:'+10',result:'Mató 15 personas'}}
 ];
+const SCENES_V1=structuredClone(SCENES);
+SCENES_V1[1].right={...SCENES_V1[1].right,quantity:'15',title:'15 personas',more:'+10',result:'Mató 15 personas'};
+const SCENE_VERSION=2;
+function scenesFor(version){return version===1?SCENES_V1:SCENES;}
+function activeScenes(){return scenesFor(session?.version);}
 const LABELS={none:'No hacer nada',left:'Izquierda',right:'Derecha'};
 const DATA_KEY='tranvia.editorial.v1.records',SESSION_KEY='tranvia.editorial.v1.session';
 const API='/api/tranvia';let mode=(['file:','about:'].includes(location.protocol)||new URLSearchParams(location.search).get('demo')==='1')?'local':'remote';
 let dataset={generation:makeId(),records:[]},session=null,current=0,resultsOpen=false,filter='all',projection=false,frame=0,animationDone=null,storageOK=true,busy=false,refreshTimer=0;
 function makeId(){return globalThis.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);}
 function freshStates(){return SCENES.map(()=>({phase:'choice',pending:null,reason:'',record:null}));}
-function newSession(name){return{id:makeId(),generation:dataset.generation,name,states:freshStates(),current:0};}
+function newSession(name){return{id:makeId(),generation:dataset.generation,name,version:SCENE_VERSION,states:freshStates(),current:0};}
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function validRecord(r){return r&&typeof r==='object'&&Number.isInteger(r.scene)&&r.scene>=1&&r.scene<=4&&Object.hasOwn(LABELS,r.choice)&&['left','right'].includes(r.destination)&&typeof r.result==='string'&&typeof r.name==='string'&&typeof r.reason==='string'&&typeof r.sessionId==='string';}
 function readJSON(key){try{const s=localStorage.getItem(key);return s?JSON.parse(s):null;}catch{storageOK=false;return null;}}
@@ -61,7 +124,34 @@ function writeJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value)
 function saveSession(){if(session){session.current=current;writeJSON(SESSION_KEY,session);}else try{localStorage.removeItem(SESSION_KEY);}catch{storageOK=false;}}
 function notify(el,text){el.textContent=text;el.hidden=!text;}
 function localDataset(){const d=readJSON(DATA_KEY);if(d&&typeof d.generation==='string'&&Array.isArray(d.records))dataset={generation:d.generation,records:d.records.filter(validRecord)};else writeJSON(DATA_KEY,dataset);}
-function normalizeSession(){const s=readJSON(SESSION_KEY);if(!s||s.generation!==dataset.generation||typeof s.name!=='string'||!s.name.trim()||!Array.isArray(s.states)||s.states.length!==4){session=null;return;}session={id:s.id||makeId(),generation:s.generation,name:s.name.slice(0,80),states:freshStates(),current:0};s.states.forEach((old,i)=>{if(!old||typeof old!=='object')return;const state=session.states[i];if(old.pending&&Object.hasOwn(LABELS,old.pending.choice)&&['left','right'].includes(old.pending.destination)){state.pending={choice:old.pending.choice,destination:old.pending.destination,result:SCENES[i][old.pending.destination].result};state.phase='form';state.reason=typeof old.reason==='string'?old.reason:'';}if(validRecord(old.record)&&old.record.scene===i+1&&old.record.sessionId===session.id){state.record=old.record;state.pending={choice:old.record.choice,destination:old.record.destination,result:SCENES[i][old.record.destination].result};state.reason=old.record.reason;state.phase='saved';}});if(mode==='local')dataset.records.filter(r=>r.sessionId===session.id).forEach(r=>{const s=session.states[r.scene-1];s.record=r;s.pending={choice:r.choice,destination:r.destination,result:SCENES[r.scene-1][r.destination].result};s.reason=r.reason;s.phase='saved';});current=Math.min(3,Math.max(0,Number.isInteger(s.current)?s.current:0));const unlocked=highestUnlocked();if(current>unlocked)current=unlocked;saveSession();}
+function normalizeSession(){
+ const s=readJSON(SESSION_KEY);
+ if(!s||s.generation!==dataset.generation||typeof s.name!=='string'||!s.name.trim()||!Array.isArray(s.states)||s.states.length!==4){session=null;return;}
+ const version=s.version===SCENE_VERSION?SCENE_VERSION:1;
+ const cases=scenesFor(version);
+ session={id:s.id||makeId(),generation:s.generation,name:s.name.slice(0,80),version,states:freshStates(),current:0};
+ s.states.forEach((old,i)=>{
+  if(!old||typeof old!=='object')return;
+  const state=session.states[i];
+  if(old.pending&&Object.hasOwn(LABELS,old.pending.choice)&&['left','right'].includes(old.pending.destination)){
+   state.pending={choice:old.pending.choice,destination:old.pending.destination,result:cases[i][old.pending.destination].result};
+   state.phase='form';state.reason=typeof old.reason==='string'?old.reason:'';
+  }
+  if(validRecord(old.record)&&old.record.scene===i+1&&old.record.sessionId===session.id){
+   state.record=old.record;
+   state.pending={choice:old.record.choice,destination:old.record.destination,result:old.record.result};
+   state.reason=old.record.reason;state.phase='saved';
+  }
+ });
+ if(mode==='local')dataset.records.filter(r=>r.sessionId===session.id).forEach(r=>{
+  const state=session.states[r.scene-1];state.record=r;
+  state.pending={choice:r.choice,destination:r.destination,result:r.result};
+  state.reason=r.reason;state.phase='saved';
+ });
+ current=Math.min(3,Math.max(0,Number.isInteger(s.current)?s.current:0));
+ if(current>highestUnlocked())current=highestUnlocked();saveSession();
+}
+
 function highestUnlocked(){if(!session)return 0;let n=0;while(n<3&&session.states[n].phase==='saved')n++;return n;}
 function allSaved(){return !!session&&session.states.every(s=>s.phase==='saved');}
 function recordFor(scene){return session?.states[scene]?.record||null;}
@@ -73,17 +163,52 @@ function finalPosition(side){position(side==='left'?285:715,30,side==='left'?-49
 function stopAnimation(){if(frame){cancelAnimationFrame(frame);frame=0;}animationDone=null;}
 function animateTo(side,done){animationDone=done;const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce){finalPosition(side);animationDone=null;done();return;}const start=performance.now(),duration=1150,end=side==='left'?[285,30]:[715,30],first=106,second=Math.hypot(215,185),total=first+second,angle=side==='left'?-49.3:49.3;function tick(now){const t=Math.min(1,(now-start)/duration),distance=t*total;let x,y,a;if(distance<first){x=500;y=321-distance;a=0;}else{const p=(distance-first)/second;x=500+(end[0]-500)*p;y=215+(end[1]-215)*p;a=angle;}position(x,y,a);if(t<1)frame=requestAnimationFrame(tick);else{frame=0;animationDone=null;done();}}frame=requestAnimationFrame(tick);}
 function saveDraft(){if(!session)return;const s=session.states[current];if(s.phase==='form')s.reason=$('#reason').value;saveSession();}
-function render(){const started=!!session;$('#entry').hidden=started;$('#game').hidden=!started;$('#mode-label').textContent=mode==='local'?'Registro local · Demostración':'Registro compartido';$('#entry-storage').textContent=mode==='local'?'Demostración local: las respuestas se guardan en este navegador.':(!storageOK?'No se pudo guardar el progreso en este navegador.':'');$('#results').hidden=!resultsOpen;if(!started){if(resultsOpen)renderResults();return;}const s=session.states[current],sc=SCENES[current];$('#scene-counter').textContent=String(current+1).padStart(2,'0')+' / 04';$('#stage-coordinate').textContent='T — '+String(current+1).padStart(2,'0');$$('[data-scene]').forEach((b,i)=>{b.disabled=i>highestUnlocked()||s.phase==='moving'||busy;b.setAttribute('aria-current',i===current?'step':'false');});for(const side of ['left','right']){const d=sc[side];$(`#${side}-quantity`).textContent=d.quantity;$(`#${side}-title`).textContent=d.title;$(`#${side}-description`).textContent=d.description;$(`#${side}-description`).hidden=!d.description;$(`#${side}-figures`).innerHTML=icons(d);$(`#dest-${side}`).classList.toggle('is-hit',!!s.pending&&['form','saved'].includes(s.phase)&&s.pending.destination===side);}$('#choices').hidden=s.phase!=='choice';$('#motion').hidden=s.phase!=='moving';$('#result').hidden=!['form','saved'].includes(s.phase);$('#reason-form').hidden=s.phase!=='form';$('#saved').hidden=s.phase!=='saved';$('#complete').hidden=!allSaved();$('#stage-status').textContent=s.phase==='choice'?'En espera de una decisión':s.phase==='moving'?'Tranvía en movimiento':'Trayectoria resuelta';if(s.phase==='choice')position(500,321);if(s.pending&&['form','saved'].includes(s.phase)){finalPosition(s.pending.destination);$('#result-scene').textContent='Escenario '+String(current+1).padStart(2,'0')+' · Resultado';$('#result-title').textContent=s.pending.result;$('#result-choice').textContent=LABELS[s.pending.choice];$('#result-name').textContent=session.name;}if(s.phase==='form'){$('#reason').value=s.reason;notify($('#reason-error'),'');$('#save-button').disabled=busy;$('#save-button').textContent=busy?'Registrando...':'Registrar respuesta ↗';}if(s.phase==='saved'&&s.record){$('#saved-quote').textContent='“'+s.record.reason+'”';$('#next').hidden=current===3;$('#last-saved').hidden=current!==3;}if(resultsOpen)renderResults();}
+function render(){const started=!!session;$('#entry').hidden=started;$('#game').hidden=!started;$('#mode-label').textContent=mode==='local'?'Registro local · Demostración':'Registro compartido';$('#entry-storage').textContent=mode==='local'?'Demostración local: las respuestas se guardan en este navegador.':(!storageOK?'No se pudo guardar el progreso en este navegador.':'');$('#results').hidden=!resultsOpen;root.classList.toggle('results-wide',resultsOpen);if(!started){if(resultsOpen)renderResults();return;}const s=session.states[current],sc=activeScenes()[current];$('#scene-counter').textContent=String(current+1).padStart(2,'0')+' / 04';$('#stage-coordinate').textContent='T — '+String(current+1).padStart(2,'0');$$('[data-scene]').forEach((b,i)=>{b.disabled=i>highestUnlocked()||s.phase==='moving'||busy;b.setAttribute('aria-current',i===current?'step':'false');});for(const side of ['left','right']){const d=sc[side];$(`#${side}-quantity`).textContent=d.quantity;$(`#${side}-title`).textContent=d.title;$(`#${side}-description`).textContent=d.description;$(`#${side}-description`).hidden=!d.description;$(`#${side}-figures`).innerHTML=icons(d);$(`#dest-${side}`).classList.toggle('is-hit',!!s.pending&&['form','saved'].includes(s.phase)&&s.pending.destination===side);}$('#choices').hidden=s.phase!=='choice';$('#motion').hidden=s.phase!=='moving';$('#result').hidden=!['form','saved'].includes(s.phase);$('#reason-form').hidden=s.phase!=='form';$('#saved').hidden=s.phase!=='saved';$('#complete').hidden=!allSaved();$('#stage-status').textContent=s.phase==='choice'?'En espera de una decisión':s.phase==='moving'?'Tranvía en movimiento':'Trayectoria resuelta';if(s.phase==='choice')position(500,321);if(s.pending&&['form','saved'].includes(s.phase)){finalPosition(s.pending.destination);$('#result-scene').textContent='Escenario '+String(current+1).padStart(2,'0')+' · Resultado';$('#result-title').textContent=s.pending.result;$('#result-choice').textContent=LABELS[s.pending.choice];$('#result-name').textContent=session.name;}if(s.phase==='form'){$('#reason').value=s.reason;notify($('#reason-error'),'');$('#save-button').disabled=busy;$('#save-button').textContent=busy?'Registrando...':'Registrar respuesta ↗';}if(s.phase==='saved'&&s.record){$('#saved-quote').textContent='“'+s.record.reason+'”';$('#next').hidden=current===3;$('#last-saved').hidden=current!==3;}if(resultsOpen)renderResults();}
 function scrollToElement(el){el.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
-function beginChoice(choice){if(!session||busy)return;const s=session.states[current];if(s.phase!=='choice')return;const destination=choice==='none'?randomSide():choice;s.pending={choice,destination,result:SCENES[current][destination].result};s.phase='moving';saveSession();render();const index=current;animateTo(destination,()=>{session.states[index].phase='form';saveSession();if(current===index){render();scrollToElement($('#result'));$('#reason').focus({preventScroll:true});}});}
+function beginChoice(choice){if(!session||busy)return;const s=session.states[current];if(s.phase!=='choice')return;const destination=choice==='none'?randomSide():choice;s.pending={choice,destination,result:activeScenes()[current][destination].result};s.phase='moving';saveSession();render();const index=current;animateTo(destination,()=>{session.states[index].phase='form';saveSession();if(current===index){render();scrollToElement($('#result'));$('#reason').focus({preventScroll:true});}});}
 async function api(path,options={}){const response=await fetch(API+path,{...options,signal:AbortSignal.timeout(15000),headers:{'Content-Type':'application/json',...(options.headers||{})},cache:'no-store'});const text=await response.text();let data;try{data=text?JSON.parse(text):{};}catch{throw new Error('El servidor no devolvió una respuesta válida.');}if(!response.ok)throw new Error(data.error||'No se pudo completar la solicitud.');return data;}
-async function loadShared(){const data=await api('/state');if(typeof data.generation!=='string'||!Array.isArray(data.records))throw new Error('El registro compartido no está configurado.');const changed=dataset.generation!==data.generation;dataset={generation:data.generation,records:data.records.filter(validRecord)};if(changed&&session&&session.generation!==dataset.generation){session=null;current=0;saveSession();}if(session){dataset.records.filter(r=>r.sessionId===session.id).forEach(r=>{const s=session.states[r.scene-1];s.record=r;s.pending={choice:r.choice,destination:r.destination,result:SCENES[r.scene-1][r.destination].result};s.reason=r.reason;s.phase='saved';});saveSession();}return data;}
+async function loadShared(){const data=await api('/state');if(typeof data.generation!=='string'||!Array.isArray(data.records))throw new Error('El registro compartido no está configurado.');const changed=dataset.generation!==data.generation;dataset={generation:data.generation,records:data.records.filter(validRecord)};if(changed&&session&&session.generation!==dataset.generation){session=null;current=0;saveSession();}if(session){dataset.records.filter(r=>r.sessionId===session.id).forEach(r=>{const s=session.states[r.scene-1];s.record=r;s.pending={choice:r.choice,destination:r.destination,result:r.result};s.reason=r.reason;s.phase='saved';});saveSession();}return data;}
 async function initialize(){makeRails();if(mode==='local'){localDataset();normalizeSession();render();return;}try{await loadShared();normalizeSession();render();}catch(e){$('#entry').hidden=false;$('#entry-error').hidden=false;$('#entry-error').textContent='No se pudo conectar el registro compartido. '+e.message+' Para probar la versión local, abre el HTML descargado.';$('#entry-form').querySelector('button[type=submit]').disabled=true;$('#mode-label').textContent='Sin conexión';}}
-async function submitRecord(){const s=session.states[current];if(busy||s.phase!=='form')return;const reason=$('#reason').value.trim();if(!reason){notify($('#reason-error'),'Escribe una justificación antes de continuar.');return;}s.reason=reason;saveSession();busy=true;$('#save-button').disabled=true;$('#save-button').textContent='Registrando...';let record={id:makeId(),generation:dataset.generation,sessionId:session.id,scene:current+1,choice:s.pending.choice,destination:s.pending.destination,result:s.pending.result,name:session.name,reason,createdAt:new Date().toISOString()};try{if(mode==='remote'){const data=await api('/submit',{method:'POST',body:JSON.stringify(record)});record=data.record;if(data.generation&&data.generation!==session.generation)throw new Error('El registro fue reiniciado. Recarga la página.');}else{const stored=readJSON(DATA_KEY);if(stored&&stored.generation===dataset.generation&&Array.isArray(stored.records))dataset.records=stored.records.filter(validRecord);const existing=dataset.records.find(r=>r.sessionId===session.id&&r.scene===record.scene);if(existing)record=existing;else{dataset.records.push(record);if(!writeJSON(DATA_KEY,dataset))throw new Error('No se pudo guardar en este navegador.');}}s.record=record;s.reason=record.reason;s.phase='saved';if(!dataset.records.some(r=>r.id===record.id))dataset.records.push(record);saveSession();busy=false;render();scrollToElement($('#result'));}catch(e){busy=false;notify($('#reason-error'),e.message);$('#save-button').disabled=false;$('#save-button').textContent='Reintentar registro ↗';}}
+async function submitRecord(){const s=session.states[current];if(busy||s.phase!=='form')return;const reason=$('#reason').value.trim();if(!reason){notify($('#reason-error'),'Escribe una justificación antes de continuar.');return;}s.reason=reason;saveSession();busy=true;$('#save-button').disabled=true;$('#save-button').textContent='Registrando...';let record={id:makeId(),generation:dataset.generation,sessionId:session.id,scene:current+1,scenarioVersion:session.version,choice:s.pending.choice,destination:s.pending.destination,result:s.pending.result,name:session.name,reason,createdAt:new Date().toISOString()};try{if(mode==='remote'){const data=await api('/submit',{method:'POST',body:JSON.stringify(record)});record=data.record;if(data.generation&&data.generation!==session.generation)throw new Error('El registro fue reiniciado. Recarga la página.');}else{const stored=readJSON(DATA_KEY);if(stored&&stored.generation===dataset.generation&&Array.isArray(stored.records))dataset.records=stored.records.filter(validRecord);const existing=dataset.records.find(r=>r.sessionId===session.id&&r.scene===record.scene);if(existing)record=existing;else{dataset.records.push(record);if(!writeJSON(DATA_KEY,dataset))throw new Error('No se pudo guardar en este navegador.');}}s.record=record;s.reason=record.reason;s.phase='saved';if(!dataset.records.some(r=>r.id===record.id))dataset.records.push(record);saveSession();busy=false;render();scrollToElement($('#result'));}catch(e){busy=false;notify($('#reason-error'),e.message);$('#save-button').disabled=false;$('#save-button').textContent='Reintentar registro ↗';}}
 function bar(label,n,total){const pct=total?100*n/total:0;return `<div class="bar-row"><span class="bar-label">${escapeHTML(label)}</span><div class="bar-track" role="img" aria-label="${escapeHTML(label)}: ${n} de ${total}"><i class="bar-fill" style="width:${pct}%"></i></div><strong>${n}</strong></div>`;}
-function renderResults(){if(!resultsOpen)return;const all=dataset.records.filter(validRecord),selected=filter==='all'?[0,1,2,3]:[Number(filter)-1],people=new Set(all.map(r=>r.sessionId));$('#results-count').textContent=`${people.size} ${people.size===1?'participante':'participantes'} · ${all.length} ${all.length===1?'respuesta':'respuestas'}`;$('#stats').innerHTML=selected.map(i=>{const sc=SCENES[i],rs=all.filter(r=>r.scene===i+1),total=rs.length;return `<section class="stat"><div><div class="stat-number">${String(i+1).padStart(2,'0')}</div><p class="stat-title">${total} ${total===1?'respuesta':'respuestas'}</p></div><div class="stat-body"><div class="stat-subhead">Elecciones</div>${['none','left','right'].map(c=>bar(LABELS[c],rs.filter(r=>r.choice===c).length,total)).join('')}<div class="stat-subhead">Resultados</div>${['left','right'].map(d=>bar(sc[d].result,rs.filter(r=>r.destination===d).length,total)).join('')}</div></section>`;}).join('');const rec=all.filter(r=>filter==='all'||r.scene===Number(filter)).sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||''));$('#record-count').textContent=rec.length+' '+(rec.length===1?'respuesta':'respuestas');$('#records').innerHTML=rec.length?rec.map(r=>`<article class="record"><div class="smallcaps">Escenario ${String(r.scene).padStart(2,'0')}</div><h4>${escapeHTML(r.result)}</h4><div class="record-meta"><div><strong>Elección:</strong> ${escapeHTML(LABELS[r.choice])}</div><div><strong>Nombre:</strong> ${escapeHTML(r.name)}</div></div><blockquote>“${escapeHTML(r.reason)}”</blockquote></article>`).join(''):'<p class="empty">Todavía no hay respuestas registradas.</p>';}
-async function refreshResults(){if(busy)return;try{if(mode==='remote')await loadShared();else localDataset();render();}catch(e){notify($('#entry-error'),e.message);}}
-async function showResults(){resultsOpen=true;closeSettings();$('#results').hidden=false;await refreshResults();scrollToElement($('#results'));}
+function resultLabel(r){
+ // Only remove redundant wording; never change the recorded number of victims.
+ return r.scene===4&&r.result==='Mató 15 personas desconocidas'?'Mató 15 personas':r.result;
+}
+function sceneOutcomes(scene,records){
+ const labels=[SCENES[scene].left.result,SCENES[scene].right.result];
+ for(const r of records){const label=resultLabel(r);if(!labels.includes(label))labels.push(label);}
+ return labels;
+}
+function renderRecord(r){
+ const previous=r.scene===2&&r.result==='Mató 15 personas';
+ return `<article class="record"><h5>${escapeHTML(resultLabel(r))}</h5>${previous?'<span class="record-version">Versión anterior · 15 personas</span>':''}<div class="record-meta"><div><strong>Elección:</strong> ${escapeHTML(LABELS[r.choice])}</div><div><strong>Nombre:</strong> ${escapeHTML(r.name)}</div></div><blockquote>“${escapeHTML(r.reason)}”</blockquote></article>`;
+}
+function renderResults(){
+ if(!resultsOpen)return;
+ const all=dataset.records.filter(validRecord);
+ const selected=filter==='all'?[0,1,2,3]:[Number(filter)-1];
+ const people=new Set(all.map(r=>r.sessionId));
+ $('#results-count').textContent=`${people.size} ${people.size===1?'participante':'participantes'} · ${all.length} ${all.length===1?'respuesta':'respuestas'}`;
+ $('#scenario-results').innerHTML=selected.map(i=>{
+  const rs=all.filter(r=>r.scene===i+1).sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||''));
+  const total=rs.length;
+  const count=n=>n+' '+(n===1?'respuesta':'respuestas');
+  const previous=rs.some(r=>r.scene===2&&r.result==='Mató 15 personas');
+  return `<section class="scenario-block" id="results-scene-${i+1}" aria-labelledby="results-title-${i+1}">
+   <header class="scenario-head"><div><div class="smallcaps">${String(i+1).padStart(2,'0')} / 04</div><h3 id="results-title-${i+1}">Escenario ${i+1}</h3></div><div class="results-count">${count(total)}</div></header>
+   <div class="scenario-stats">
+    <div><div class="stat-subhead">Elecciones</div>${['none','left','right'].map(c=>bar(LABELS[c],rs.filter(r=>r.choice===c).length,total)).join('')}</div>
+    <div><div class="stat-subhead">Resultados</div>${sceneOutcomes(i,rs).map(label=>bar(label,rs.filter(r=>resultLabel(r)===label).length,total)).join('')}${previous?'<p class="scenario-previous">Incluye respuestas de la versión anterior, con 15 personas en el escenario 2.</p>':''}</div>
+   </div>
+   <div class="scenario-record-head"><h4>Respuestas</h4><span class="results-count">${count(total)}</span></div>
+   <div class="scenario-records">${rs.length?rs.map(renderRecord).join(''):'<p class="empty">Todavía no hay respuestas registradas.</p>'}</div>
+  </section>`;
+ }).join('');
+}
+
+async function refreshResults(){if(busy)return;try{const before=JSON.stringify(dataset);if(mode==='remote')await loadShared();else localDataset();if(JSON.stringify(dataset)!==before)render();}catch(e){notify($('#entry-error'),e.message);}}
+async function showResults(){resultsOpen=true;closeSettings();render();await refreshResults();scrollToElement($('#results'));}
 function openSettings(){const d=$('#settings');$('#settings-title').textContent='Configuración';$('#code-form').hidden=false;$('#clear-confirm').hidden=true;notify($('#code-error'),'');notify($('#clear-error'),'');$('#code').value='';if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');$('#code').focus();}
 function closeSettings(){const d=$('#settings');if(typeof d.close==='function'&&d.open)d.close();else d.removeAttribute('open');$('#code-form').hidden=false;$('#clear-confirm').hidden=true;}
 async function clearAll(){if(busy)return;busy=true;$('#do-clear').disabled=true;try{if(mode==='remote'){const data=await api('/clear',{method:'POST',body:JSON.stringify({code:'cleanall'})});dataset={generation:data.generation,records:[]};}else{dataset={generation:makeId(),records:[]};if(!writeJSON(DATA_KEY,dataset))throw new Error('No se pudo borrar el registro local.');}stopAnimation();session=null;current=0;resultsOpen=false;filter='all';$('#result-filter').value='all';saveSession();$('#entry-name').value='';closeSettings();busy=false;$('#do-clear').disabled=false;render();$('#entry-name').focus();scrollToElement($('#entry'));}catch(e){busy=false;$('#do-clear').disabled=false;notify($('#clear-error'),e.message);}}
