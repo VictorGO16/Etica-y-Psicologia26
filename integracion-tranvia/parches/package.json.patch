@@ -1,0 +1,14 @@
+--- a/package.json
++++ b/package.json
+@@ -8,5 +8,10 @@
+     "build": "node scripts/construir.mjs",
+     "vista": "node scripts/construir.mjs && node scripts/servidor.mjs"
+   },
+-  "engines": { "node": ">=18" }
++  "engines": {
++    "node": "22.x"
++  },
++  "dependencies": {
++    "@neondatabase/serverless": "1.1.0"
++  }
+ }

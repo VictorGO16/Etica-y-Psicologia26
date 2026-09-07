@@ -1,0 +1,85 @@
+--- a/scripts/construir.mjs
++++ b/scripts/construir.mjs
+@@ -360,6 +360,21 @@
+     </article>`;
+ }
+ 
++function pintarJuego(item, i) {
++  return `    <article class="recurso recurso--sitio aparece" data-orden="${i}">
++      <div class="recurso__superior">
++        <div>
++          <p class="recurso__autor">Juego</p>
++          <h4 class="recurso__titulo">${escapar(item.titulo)}</h4>
++          ${item.descripcion ? `<p class="recurso__descripcion">${escapar(item.descripcion)}</p>` : ''}
++        </div>
++      </div>
++      <div class="recurso__acciones">
++        <a class="accion accion--primaria" href="${escapar(item.url)}" target="_blank" rel="noopener">Abrir ${FLECHA}</a>
++      </div>
++    </article>`;
++}
++
+ function pintarOtroSitio(item, i) {
+   return `    <article class="recurso recurso--sitio aparece" data-orden="${i}">
+       <div class="recurso__superior">
+@@ -401,8 +416,9 @@
+   const literatura = recursos.literatura || [];
+   const videos = recursos.videos || [];
+   const otras = recursos.otrasClases || [];
++  const juegos = recursos.juegos || [];
+   const otrosSitios = recursos.otrosSitios || [];
+-  const total = literatura.length + videos.length + otras.length + otrosSitios.length;
++  const total = literatura.length + videos.length + otras.length + juegos.length + otrosSitios.length;
+ 
+   return `  <section class="seccion seccion--recursos" id="recursos">
+     <div class="contenedor">
+@@ -415,6 +431,7 @@
+         <a href="#literatura">Literatura</a>
+         <a href="#videos">Videos</a>
+         <a href="#otras-clases">Otras clases</a>
++        <a href="#juegos">Juegos</a>
+         <a href="#otros-sitios">Otros sitios</a>
+       </nav>
+ 
+@@ -424,7 +441,9 @@
+ 
+ ${pintarSubseccion('otras-clases', 3, config.otrasClases || {}, otras, pintarOtraClase, { singular: 'archivo', plural: 'archivos' })}
+ 
+-${pintarSubseccion('otros-sitios', 4, config.otrosSitios || {}, otrosSitios, pintarOtroSitio, { singular: 'sitio', plural: 'sitios' })}
++${pintarSubseccion('juegos', 4, config.juegos || {}, juegos, pintarJuego, { singular: 'juego', plural: 'juegos' })}
++
++${pintarSubseccion('otros-sitios', 5, config.otrosSitios || {}, otrosSitios, pintarOtroSitio, { singular: 'sitio', plural: 'sitios' })}
+     </div>
+   </section>`;
+ }
+@@ -448,10 +467,11 @@
+     literatura: await prepararArchivos(recursosCrudos.literatura || [], 'literatura'),
+     videos: recursosCrudos.videos || [],
+     otrasClases: await prepararArchivos(recursosCrudos.otrasClases || [], 'otras-clases'),
++    juegos: recursosCrudos.juegos || [],
+     otrosSitios: recursosCrudos.otrosSitios || []
+   };
+ 
+-  const tieneRecursos = recursos.literatura.length || recursos.videos.length || recursos.otrasClases.length || recursos.otrosSitios.length;
++  const tieneRecursos = recursos.literatura.length || recursos.videos.length || recursos.otrasClases.length || recursos.juegos.length || recursos.otrosSitios.length;
+   const bloques = [
+     pintarSesiones(secciones.sesiones || { titulo: 'Sesiones' }, sesiones)
+   ];
+@@ -492,13 +512,16 @@
+ 
+   const nS = await copiarCarpeta(path.join(raiz, 'sesiones'), path.join(salida, 'sesiones'));
+   const nR = await copiarCarpeta(path.join(raiz, 'recursos'), path.join(salida, 'recursos'));
++  // El juego es independiente de los recursos descargables del curso.
++  await mkdir(path.join(salida, 'tranvia'), { recursive: true });
++  await copyFile(path.join(raiz, 'tranvia', 'index.html'), path.join(salida, 'tranvia', 'index.html'));
+ 
+   const archivosRecursos = [...recursos.literatura, ...recursos.otrasClases];
+   const faltantes = archivosRecursos.filter((x) => !x.existe);
+   const pesados = archivosRecursos.filter((x) => x.existe && x.bytes > 45 * 1024 * 1024);
+ 
+   console.log(`\n  Sitio construido en publicado/`);
+-  console.log(`  ${sesiones.length} sesión(es), ${recursos.literatura.length} lectura(s), ${recursos.videos.length} video(s), ${recursos.otrasClases.length} archivo(s) de otras clases, ${recursos.otrosSitios.length} sitio(s) externo(s).`);
++  console.log(`  ${sesiones.length} sesión(es), ${recursos.literatura.length} lectura(s), ${recursos.videos.length} video(s), ${recursos.otrasClases.length} archivo(s) de otras clases, ${recursos.juegos.length} juego(s), ${recursos.otrosSitios.length} sitio(s) externo(s).`);
+   console.log(`  ${nS + nR} archivo(s) copiado(s) al sitio publicado.`);
+ 
+   if (faltantes.length) {

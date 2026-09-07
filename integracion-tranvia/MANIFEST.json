@@ -1,0 +1,21 @@
+{
+  "version": "2.0",
+  "source": "Etica-y-Psicologia26-master.zip supplied in conversation",
+  "original_generator_sha256": "5b40a29de337360f4da3b6b2e96163f8cf48e4d5c4d969229793a5a702f917e8",
+  "updated_files": [
+    "scripts/construir.mjs",
+    "contenido.json",
+    "package.json",
+    "vercel.json"
+  ],
+  "added_files": [
+    "tranvia/index.html",
+    "api/tranvia/_shared.js",
+    "api/tranvia/state.js",
+    "api/tranvia/submit.js",
+    "api/tranvia/clear.js",
+    "sql/tranvia.sql"
+  ],
+  "dependency": "@neondatabase/serverless@1.1.0",
+  "notes": "The installer checks the generator hash and refuses to overwrite existing game/API/SQL files."
+}

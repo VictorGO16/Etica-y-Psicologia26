@@ -1,0 +1,12 @@
+--- a/vercel.json
++++ b/vercel.json
+@@ -1,7 +1,7 @@
+ {
+   "$schema": "https://openapi.vercel.sh/vercel.json",
+-  "buildCommand": "node scripts/construir.mjs",
++  "buildCommand": "npm run build",
+   "outputDirectory": "publicado",
+-  "installCommand": "echo 'sin dependencias'",
++  "installCommand": "npm install",
+   "framework": null
+ }

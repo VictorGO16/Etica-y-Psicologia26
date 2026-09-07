@@ -1,0 +1,26 @@
+--- a/contenido.json
++++ b/contenido.json
+@@ -47,6 +47,9 @@
+       },
+       "otrosSitios": {
+         "titulo": "Otros sitios"
++      },
++      "juegos": {
++        "titulo": "Juegos"
+       }
+     }
+   },
+@@ -109,6 +112,13 @@
+         "archivo": "PPT Sesión 3_ Introducción a la ética y la moral.pptx"
+       }
+     ],
++    "juegos": [
++      {
++        "titulo": "El tranvía",
++        "url": "/tranvia/",
++        "descripcion": "Cuatro situaciones para elegir y justificar una decisión."
++      }
++    ],
+     "otrosSitios": [
+       {
+         "titulo": "Epistemología y Metodología 2026",
