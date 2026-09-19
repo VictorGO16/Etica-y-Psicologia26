@@ -297,6 +297,77 @@ a{ color:inherit; }
   background:var(--papel-hondo); padding:.15em .45em;
 }
 
+/* ---------- tests formativos ---------- */
+
+.seccion--practica{
+  padding-block:clamp(2.75rem,6vw,4.5rem);
+  background:rgba(231,223,210,.22);
+}
+
+.seccion--practica .seccion__encabezado{
+  margin-bottom:1.5rem;
+}
+
+.practica__fila{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:2rem 4rem;
+}
+
+.practica__cuerpo{
+  min-width:0;
+}
+
+.practica__bajada{
+  margin-bottom:.75rem;
+  font-size:clamp(1.05rem,.98rem + .35vw,1.25rem);
+  color:var(--tinta);
+  font-weight:400;
+}
+
+.practica__temas{
+  margin:0;
+  max-width:58ch;
+  font-family:var(--mono);
+  font-size:.66rem;
+  line-height:1.7;
+  letter-spacing:.06em;
+  color:var(--tinta-tenue);
+}
+
+.practica__accion{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:.55rem 0;
+  font-family:var(--mono);
+  font-size:.68rem;
+  line-height:1.2;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  text-decoration:none;
+  white-space:nowrap;
+  border-bottom:1px solid var(--tinta);
+}
+
+.practica__accion svg{
+  width:.9rem;
+  height:.9rem;
+  transition:transform .2s ease;
+}
+
+.practica__accion:hover,
+.practica__accion:focus-visible{
+  color:var(--oro-hondo);
+  border-bottom-color:var(--oro-hondo);
+}
+
+.practica__accion:hover svg,
+.practica__accion:focus-visible svg{
+  transform:translateX(3px);
+}
+
 /* ---------- pie ---------- */
 
 .pie{
@@ -313,20 +384,97 @@ a{ color:inherit; }
 /* ---------- pantallas chicas ---------- */
 
 @media (max-width:46rem){
+  .barra__fila{
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    gap:.75rem;
+    padding-block:.8rem 0;
+  }
+
+  /* En móvil la navegación deja de parecer metadata y pasa a ser un
+     conjunto de áreas táctiles claras, sin perder la estética editorial. */
+  .barra__nav{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    border-top:1px solid var(--regla);
+  }
+
+  .barra__nav a{
+    min-height:2.8rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.7rem;
+    padding:.72rem .8rem;
+    font-size:.62rem;
+    line-height:1.25;
+    letter-spacing:.1em;
+    color:var(--tinta);
+    border-bottom:1px solid var(--regla);
+    transition:background .18s ease, color .18s ease, border-color .18s ease;
+  }
+
+  .barra__nav a:nth-child(odd):not(:last-child){
+    border-right:1px solid var(--regla);
+  }
+
+  .barra__nav a:last-child{
+    grid-column:1 / -1;
+    color:var(--oro-hondo);
+  }
+
+  .barra__nav a::after{
+    flex:0 0 auto;
+    font-family:var(--mono);
+    font-size:.8rem;
+    line-height:1;
+    color:var(--oro-hondo);
+  }
+
+  .barra__nav a[href^="#"]::after{
+    content:"↓";
+  }
+
+  .barra__nav a[href="/tests/"]::after{
+    content:"→";
+  }
+
+  .barra__nav a:hover,
+  .barra__nav a:focus-visible{
+    background:rgba(216,163,50,.08);
+    color:var(--tinta);
+    border-bottom-color:var(--oro);
+  }
+
   .fila__enlace{
     grid-template-columns:3.25rem 1fr;
     gap:.3rem 1.1rem;
   }
+
   .fila__meta{
     grid-column:2;
     flex-direction:row; align-items:center; gap:1rem;
     padding-top:.9rem;
   }
-  .barra__nav{ gap:1rem; }
-}
 
-@media (max-width:26rem){
-  .barra__nav{ display:none; }
+  .seccion--practica{
+    padding-block:2.75rem;
+  }
+
+  .practica__fila{
+    grid-template-columns:1fr;
+    align-items:start;
+    gap:1.5rem;
+  }
+
+  .practica__accion{
+    width:max-content;
+    max-width:100%;
+    white-space:normal;
+  }
 }
 
 /* ---------- entrada escalonada ---------- */

@@ -448,6 +448,27 @@ ${pintarSubseccion('otros-sitios', 5, config.otrosSitios || {}, otrosSitios, pin
   </section>`;
 }
 
+/* ---------- preguntas de práctica ---------- */
+
+function pintarPreguntasPractica() {
+  return `  <section class="seccion seccion--practica" id="preguntas-practica">
+    <div class="contenedor">
+      <div class="seccion__encabezado">
+        <h2 class="seccion__titulo">Tests formativos</h2>
+      </div>
+
+      <div class="practica__fila">
+        <div class="practica__cuerpo">
+          <p class="seccion__nota practica__bajada">Reforzar conceptos y apoyar el estudio.</p>
+          <p class="practica__temas">Discernimiento ético · Virtud · Deontología · Utilitarismo · Cuidado</p>
+        </div>
+
+        <a class="practica__accion" href="/tests/">Abrir preguntas de práctica ${FLECHA}</a>
+      </div>
+    </div>
+  </section>`;
+}
+
 /* ---------- construcción ---------- */
 
 async function construir() {
@@ -473,7 +494,8 @@ async function construir() {
 
   const tieneRecursos = recursos.literatura.length || recursos.videos.length || recursos.otrasClases.length || recursos.juegos.length || recursos.otrosSitios.length;
   const bloques = [
-    pintarSesiones(secciones.sesiones || { titulo: 'Sesiones' }, sesiones)
+    pintarSesiones(secciones.sesiones || { titulo: 'Sesiones' }, sesiones),
+    pintarPreguntasPractica()
   ];
   if (tieneRecursos) bloques.push(pintarRecursos(secciones.recursos || { titulo: 'Recursos' }, recursos));
 
@@ -481,9 +503,8 @@ async function construir() {
     `<a href="#sesiones">${escapar((secciones.sesiones || {}).titulo || 'Sesiones')}</a>`
   ];
   if (tieneRecursos) enlaces.push(`<a href="#recursos">${escapar((secciones.recursos || {}).titulo || 'Recursos')}</a>`);
-  
   enlaces.push(`<a href="/tests/">Preguntas de práctica</a>`);
-  
+
   const ficha = (curso.ficha || [])
     .map((f) => `<div><dt>${escapar(f.termino)}</dt><dd>${escapar(f.dato)}</dd></div>`)
     .join('\n        ');
