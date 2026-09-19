@@ -481,7 +481,9 @@ async function construir() {
     `<a href="#sesiones">${escapar((secciones.sesiones || {}).titulo || 'Sesiones')}</a>`
   ];
   if (tieneRecursos) enlaces.push(`<a href="#recursos">${escapar((secciones.recursos || {}).titulo || 'Recursos')}</a>`);
-
+  
+  enlaces.push(`<a href="/tests/">Preguntas de práctica</a>`);
+  
   const ficha = (curso.ficha || [])
     .map((f) => `<div><dt>${escapar(f.termino)}</dt><dd>${escapar(f.dato)}</dd></div>`)
     .join('\n        ');
@@ -515,6 +517,8 @@ async function construir() {
   // El juego es independiente de los recursos descargables del curso.
   await mkdir(path.join(salida, 'tranvia'), { recursive: true });
   await copyFile(path.join(raiz, 'tranvia', 'index.html'), path.join(salida, 'tranvia', 'index.html'));
+  // Tests formativos. Módulo independiente listo para instrumentación remota posterior.
+  await copiarCarpeta(path.join(raiz, 'tests'), path.join(salida, 'tests'));
 
   const archivosRecursos = [...recursos.literatura, ...recursos.otrasClases];
   const faltantes = archivosRecursos.filter((x) => !x.existe);

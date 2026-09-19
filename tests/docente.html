@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vista docente · Preguntas de práctica</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="topbar"><div class="shell"><div class="brand">Ética y Psicología · Vista docente</div><a class="toplink" href="./">← Preguntas de práctica</a></div></header>
+<main class="shell admin-main">
+  <section id="adminLogin" class="admin-login hidden">
+    <p class="eyebrow">Acceso docente</p>
+    <h1>Vista docente</h1>
+    <form id="adminLoginForm">
+      <label for="adminKey">Clave</label>
+      <div><input id="adminKey" type="password" autocomplete="current-password"><button class="btn" type="submit">Entrar</button></div>
+      <p id="adminLoginStatus" class="admin-status" aria-live="polite"></p>
+    </form>
+  </section>
+  <section id="adminDashboard" class="hidden">
+    <div class="admin-heading">
+      <div><p class="eyebrow">Estado actual</p><h1>Respuestas</h1><p id="adminUpdated" class="admin-muted"></p></div>
+      <div class="admin-heading-actions"><button class="btn secondary" id="adminRefresh" type="button">Actualizar</button><button class="btn secondary" id="adminLogout" type="button">Cerrar sesión</button></div>
+    </div>
+    <div id="adminOverview" class="admin-overview"></div>
+    <section id="adminPeopleSection" class="admin-section"></section>
+    <section id="adminTestSection" class="admin-section"></section>
+    <section id="adminRunSection" class="admin-section hidden"></section>
+  </section>
+</main>
+<footer class="feature-footer shell"><p>Construido gracias al trabajo de David Carrasco y Carolina Contreras.</p></footer>
+<script type="module" src="./docente.js"></script>
+</body>
+</html>
