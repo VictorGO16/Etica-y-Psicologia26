@@ -1,6 +1,7 @@
 import {$,api,UAH,escapeHTML as esc,dateLabel,timeLabel,customCoordinates,timerLabel,remaining,setupLogin} from './common.js';
 import {referenceMap} from './map.js';
 import {attendanceMatrix} from './matrix.js';
+import {universityQrPanel} from './university-qr.js';
 let snapshot=null,mutation=false,loading=false,retakeId=null,lastActivatedToken=null;
 function todayMonday(){
   const civil=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Santiago',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -8,6 +9,7 @@ function todayMonday(){
 }
 $('#classDate').value=todayMonday();
 const mapPicker=referenceMap({element:$('#referenceMap'),latitude:$('#latitude'),longitude:$('#longitude'),button:$('#useMyLocation'),status:$('#mapStatus'),onChange:activationNotice});
+const qrPanel=universityQrPanel({isBusy:()=>mutation,setBusy:value=>{mutation=value;},reload:load});
 function modal({title,text,accept,alternative,extra=false,danger=false}){
   return new Promise(resolve=>{
     $('#dialogTitle').textContent=title;$('#dialogText').textContent=text;$('#dialogAccept').textContent=accept;
@@ -36,7 +38,7 @@ async function load(){
   if(loading)return;loading=true;
   try{
     snapshot=await api('data');$('#login').hidden=true;$('#dashboard').hidden=false;
-    mapPicker.init();
+    qrPanel.render(snapshot.universityQr);if(!snapshot.universityQr.enabled)mapPicker.init();
     $('#updated').textContent=`Actualizado a las ${timeLabel(snapshot.serverTime)} hrs. · ${snapshot.students.length} estudiantes`;
     renderSessions();renderDateFilter();renderRecords();activationNotice();
   }catch(error){if(error.status===401){showLogin();}else{$('#updated').textContent=error.message;if($('#dashboard').hidden)$('#loginStatus').textContent=error.message;}}

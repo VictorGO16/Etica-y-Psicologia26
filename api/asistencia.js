@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import QRCode from 'qrcode';
+import {qrImage,qrView} from '../lib/university-qr.js';
 import { db, body, reply, requireAdmin, checkAdminKey, issueAdminCookie, clearAdminCookie, problem } from './tests/_shared.js';
 import { uuid, monday, integer, coordinates, customCoordinates, checkLocation, getDevice, sessionView, dbResult, filters, exportWorkbook } from '../lib/asistencia.js';
 
@@ -13,6 +14,10 @@ async function activeSession(sql, token) {
   const rows = await sql`SELECT * FROM asistencia_sessions WHERE token=${uuid(token)}::uuid AND expires_at>clock_timestamp()`;
   if (!rows.length) throw problem(410, 'Esta toma de asistencia terminó o fue reemplazada.');
   return rows[0];
+}
+async function nativeMode(sql){
+  const [config]=await sql`SELECT enabled FROM asistencia_university_qr WHERE id=true`;
+  if(config?.enabled)throw problem(410,'Usa el QR de la universidad disponible en Asistencia.');
 }
 async function report(sql, query) {
   const {date,module} = filters(query);
@@ -29,7 +34,9 @@ async function report(sql, query) {
   if(module!==null)queries.push(sql`SELECT r.student_id, st.name, s.class_date, s.module, r.recorded_at, r.location_checked
     FROM asistencia_records r JOIN asistencia_sessions s ON s.id=r.session_id JOIN asistencia_students st ON st.id=r.student_id
     WHERE (${date}::date IS NULL OR s.class_date=${date}::date) ORDER BY s.class_date DESC,s.module,st.name`);
-  const [students,sessions,records,dailyRows]=await sql.transaction(queries,{isolationLevel:'RepeatableRead',readOnly:true});
+  queries.push(sql`SELECT enabled,version FROM asistencia_university_qr WHERE id=true`);
+  const results=await sql.transaction(queries,{isolationLevel:'RepeatableRead',readOnly:true});
+  const [students,sessions,records]=results,dailyRows=module!==null?results[3]:null;
   const now = Date.now();
   students.sort((a,b)=>a.name.localeCompare(b.name,'es'));
   const recordView=r=>({
@@ -37,7 +44,7 @@ async function report(sql, query) {
     module:Number(r.module),recordedAt:new Date(r.recorded_at).toISOString(),locationChecked:r.location_checked
   });
   const visibleRecords=records.map(recordView);
-  return {serverTime:new Date(now).toISOString(),students,sessions:sessions.map(s=>sessionView(s,now,true)),records:visibleRecords,dailyRecords:dailyRows?dailyRows.map(recordView):visibleRecords};
+  return {serverTime:new Date(now).toISOString(),students,sessions:sessions.map(s=>sessionView(s,now,true)),records:visibleRecords,dailyRecords:dailyRows?dailyRows.map(recordView):visibleRecords,universityQr:qrView(results.at(-1)[0])};
 }
 export function createHandler(getDb = db) {
   return async function handler(req,res) {
@@ -45,8 +52,8 @@ export function createHandler(getDb = db) {
     res.setHeader('X-Content-Type-Options','nosniff');
     const action = req.query?.action || 'state';
     try {
-      const gets = ['state','form','qr','data','export'];
-      const posts = ['login','logout','activate','extend','delete','button','submit'];
+      const gets = ['state','form','qr','data','export','university-image'];
+      const posts = ['login','logout','activate','extend','delete','button','submit','university-qr'];
       if (!gets.includes(action) && !posts.includes(action)) throw problem(404,'Operación no disponible.');
       if (req.method !== (gets.includes(action)?'GET':'POST')) { res.setHeader('Allow',gets.includes(action)?'GET':'POST'); throw problem(405,'Método no permitido.'); }
       if (req.method==='POST') sameOrigin(req);
@@ -56,17 +63,27 @@ export function createHandler(getDb = db) {
         issueAdminCookie(req,res); return reply(res,200,{ok:true});
       }
       if (action==='logout') { clearAdminCookie(req,res); return reply(res,200,{ok:true}); }
-      if (['data','export','activate','extend','delete','button'].includes(action)) requireAdmin(req);
+      if (['data','export','activate','extend','delete','button','university-qr'].includes(action)) requireAdmin(req);
       const sql=getDb();
       if (action==='state') {
+        const [config]=await sql`SELECT enabled,version FROM asistencia_university_qr WHERE id=true`;
+        if(config?.enabled)return reply(res,200,{serverTime:new Date().toISOString(),sessions:[],universityQr:qrView(config)});
         const rows=await sql`SELECT * FROM asistencia_sessions WHERE expires_at>clock_timestamp() ORDER BY class_date,module`;
-        return reply(res,200,{serverTime:new Date().toISOString(),sessions:rows.map(s=>{
+        return reply(res,200,{serverTime:new Date().toISOString(),universityQr:{enabled:false},sessions:rows.map(s=>{
           const view=sessionView(s);
           // Si el botón está oculto, el enlace solo se entrega codificado en el QR.
           if(!s.show_button)delete view.token;
           return view;
         })});
       }
+      if(action==='university-image'){
+        const [image]=await sql`SELECT image_data,mime_type,enabled,version FROM asistencia_university_qr WHERE id=true`;
+        if(!image?.image_data||image.version!==req.query.v)throw problem(404,'Imagen no disponible.');
+        if(!image.enabled)requireAdmin(req);
+        res.setHeader('Content-Type',image.mime_type);
+        return res.status(200).send(Buffer.from(image.image_data,'base64'));
+      }
+      if(['form','qr','submit'].includes(action))await nativeMode(sql);
       if (action==='form') {
         const s=await activeSession(sql,req.query.token);
         const device=getDevice(req,res,true);
@@ -98,7 +115,17 @@ export function createHandler(getDb = db) {
         res.setHeader('Content-Disposition',`attachment; filename="asistencia-${suffix}.xlsx"`);
         return res.status(200).send(buffer);
       }
-      const b=body(req,8000);
+      const b=body(req,action==='university-qr'?1500000:8000);
+      if(action==='university-qr'){
+        if(typeof b.enabled!=='boolean')throw problem(400,'Selecciona el modo de asistencia.');
+        const image=b.image===undefined?null:qrImage(b.image);
+        const rows=await sql`UPDATE asistencia_university_qr SET enabled=${b.enabled},
+          image_data=COALESCE(${image?.data??null}::text,image_data),mime_type=COALESCE(${image?.mime??null}::text,mime_type),
+          version=CASE WHEN ${Boolean(image)} THEN ${randomUUID()}::uuid ELSE version END
+          WHERE id=true AND (${Boolean(image)} OR NOT ${b.enabled} OR image_data IS NOT NULL) RETURNING enabled,version`;
+        if(!rows.length)throw problem(400,'Sube una imagen antes de activar este modo.');
+        return reply(res,200,{ok:true,universityQr:qrView(rows[0])});
+      }
       if (action==='activate') {
         const date=monday(b.date), module=integer(b.module,1,3,'Módulo'), minutes=integer(b.minutes,1,240,'Minutos');
         if (typeof b.requireLocation!=='boolean' || typeof b.replace!=='boolean' || typeof b.showButton!=='boolean') throw problem(400,'Configuración no válida.');

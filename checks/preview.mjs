@@ -14,7 +14,7 @@ const server=createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   if(url.pathname==='/api/asistencia'){
     req.query=Object.fromEntries(url.searchParams);let raw='';
-    for await(const chunk of req){raw+=chunk;if(raw.length>10000){res.writeHead(413).end();return;}}
+    for await(const chunk of req){raw+=chunk;if(raw.length>1500000){res.writeHead(413).end();return;}}
     try{req.body=raw?JSON.parse(raw):undefined;}catch{res.writeHead(400).end();return;}
     res.status=n=>{res.statusCode=n;return res;};res.json=data=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(data));};res.send=data=>res.end(data);
     await handler(req,res);return;

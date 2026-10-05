@@ -17,6 +17,7 @@ export async function testDatabase() {
   await pg.exec(await readFile(new URL('../sql/asistencia.sql',import.meta.url),'utf8'));
   await pg.exec(await readFile(new URL('../sql/asistencia-borrar.sql',import.meta.url),'utf8'));
   await pg.exec(await readFile(new URL('../sql/asistencia-boton.sql',import.meta.url),'utf8'));
+  await pg.exec(await readFile(new URL('../sql/asistencia-qr-universidad.sql',import.meta.url),'utf8'));
   return {pg,sql:sqlFor(pg)};
 }
 export function response() {

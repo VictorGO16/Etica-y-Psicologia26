@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Asistencia · Ética y Psicología</title><link rel="stylesheet" href="./styles.css"></head>
 <body><header class="topbar"><div class="shell"><span class="brand">Ética y Psicología · Asistencia</span><a href="/">Volver al curso</a></div></header>
-<main class="shell"><section class="hero"><p class="eyebrow">Registro de clase</p><h1>Asistencia</h1><p class="lead">Escanea el QR de tu módulo para registrar tu asistencia.</p></section>
-<p id="stateStatus" class="status-label" role="status">Consultando asistencias…</p><p id="empty" class="empty" hidden>Aún no hay asistencias disponibles.</p><div id="sessions" class="cards"></div>
+<main class="shell"><section class="hero"><p class="eyebrow">Registro de clase</p><h1>Asistencia</h1><p id="intro" class="lead">Escanea el QR de tu módulo para registrar tu asistencia.</p></section>
+<p id="stateStatus" class="status-label" role="status">Consultando asistencias…</p><p id="empty" class="empty" hidden>Aún no hay asistencias disponibles.</p><div id="sessions" class="cards"></div><div id="universityQr" class="university-qr" hidden><img id="universityImage" alt="QR de asistencia de la universidad"></div>
 <section id="login" class="login" hidden><form id="loginForm"><div class="key-row"><input id="adminKey" type="password" autocomplete="current-password" aria-label="Clave" placeholder="Clave" required><button type="submit" class="key-button" aria-label="Continuar">→</button><button id="closeLogin" type="button" class="key-button" aria-label="Cerrar">×</button></div><p id="loginStatus" class="message" role="alert"></p></form></section></main>
 <footer class="footer"><div class="shell"><span>Material docente del curso.</span><button id="debug" class="footer-debug" type="button">Debug</button></div></footer><script type="module" src="./home.js"></script></body></html>
