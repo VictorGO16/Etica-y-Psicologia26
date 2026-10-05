@@ -1,5 +1,7 @@
 -- Ejecutar una vez en Neon SQL Editor, en la base que usa DATABASE_URL.
 -- Puede repetirse: no elimina asistencias existentes. La nómina se añade al final.
+-- Ejecutar después asistencia-borrar.sql para habilitar el borrado desde el panel.
+-- Ejecutar también asistencia-boton.sql para configurar el botón de acceso.
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS asistencia_students (

@@ -16,7 +16,7 @@ async function activeSession(sql, token) {
 }
 async function report(sql, query) {
   const {date,module} = filters(query);
-  const [students, sessions, records] = await sql.transaction([
+  const queries = [
     sql`SELECT id,name FROM asistencia_students ORDER BY name`,
     sql`SELECT s.*, (SELECT count(*) FROM asistencia_records r WHERE r.session_id=s.id) AS count
       FROM asistencia_sessions s WHERE (${date}::date IS NULL OR s.class_date=${date}::date)
@@ -25,13 +25,19 @@ async function report(sql, query) {
       FROM asistencia_records r JOIN asistencia_sessions s ON s.id=r.session_id JOIN asistencia_students st ON st.id=r.student_id
       WHERE (${date}::date IS NULL OR s.class_date=${date}::date) AND (${module}::int IS NULL OR s.module=${module}::int)
       ORDER BY s.class_date DESC,s.module,st.name`
-  ], {isolationLevel:'RepeatableRead',readOnly:true});
+  ];
+  if(module!==null)queries.push(sql`SELECT r.student_id, st.name, s.class_date, s.module, r.recorded_at, r.location_checked
+    FROM asistencia_records r JOIN asistencia_sessions s ON s.id=r.session_id JOIN asistencia_students st ON st.id=r.student_id
+    WHERE (${date}::date IS NULL OR s.class_date=${date}::date) ORDER BY s.class_date DESC,s.module,st.name`);
+  const [students,sessions,records,dailyRows]=await sql.transaction(queries,{isolationLevel:'RepeatableRead',readOnly:true});
   const now = Date.now();
   students.sort((a,b)=>a.name.localeCompare(b.name,'es'));
-  return {serverTime:new Date(now).toISOString(),students,sessions:sessions.map(s=>sessionView(s,now,true)),records:records.map(r=>({
+  const recordView=r=>({
     studentId:Number(r.student_id),name:r.name,date:String(r.class_date instanceof Date?r.class_date.toISOString():r.class_date).slice(0,10),
     module:Number(r.module),recordedAt:new Date(r.recorded_at).toISOString(),locationChecked:r.location_checked
-  }))};
+  });
+  const visibleRecords=records.map(recordView);
+  return {serverTime:new Date(now).toISOString(),students,sessions:sessions.map(s=>sessionView(s,now,true)),records:visibleRecords,dailyRecords:dailyRows?dailyRows.map(recordView):visibleRecords};
 }
 export function createHandler(getDb = db) {
   return async function handler(req,res) {
@@ -40,7 +46,7 @@ export function createHandler(getDb = db) {
     const action = req.query?.action || 'state';
     try {
       const gets = ['state','form','qr','data','export'];
-      const posts = ['login','logout','activate','extend','submit'];
+      const posts = ['login','logout','activate','extend','delete','button','submit'];
       if (!gets.includes(action) && !posts.includes(action)) throw problem(404,'Operación no disponible.');
       if (req.method !== (gets.includes(action)?'GET':'POST')) { res.setHeader('Allow',gets.includes(action)?'GET':'POST'); throw problem(405,'Método no permitido.'); }
       if (req.method==='POST') sameOrigin(req);
@@ -50,11 +56,16 @@ export function createHandler(getDb = db) {
         issueAdminCookie(req,res); return reply(res,200,{ok:true});
       }
       if (action==='logout') { clearAdminCookie(req,res); return reply(res,200,{ok:true}); }
-      if (['data','export','activate','extend'].includes(action)) requireAdmin(req);
+      if (['data','export','activate','extend','delete','button'].includes(action)) requireAdmin(req);
       const sql=getDb();
       if (action==='state') {
         const rows=await sql`SELECT * FROM asistencia_sessions WHERE expires_at>clock_timestamp() ORDER BY class_date,module`;
-        return reply(res,200,{serverTime:new Date().toISOString(),sessions:rows.map(s=>sessionView(s))});
+        return reply(res,200,{serverTime:new Date().toISOString(),sessions:rows.map(s=>{
+          const view=sessionView(s);
+          // Si el botón está oculto, el enlace solo se entrega codificado en el QR.
+          if(!s.show_button)delete view.token;
+          return view;
+        })});
       }
       if (action==='form') {
         const s=await activeSession(sql,req.query.token);
@@ -67,19 +78,21 @@ export function createHandler(getDb = db) {
           receipt:existing[0]?{name:existing[0].name,recordedAt:new Date(existing[0].recorded_at).toISOString()}:null});
       }
       if (action==='qr') {
-        await activeSession(sql,req.query.token);
+        const rows=await sql`SELECT * FROM asistencia_sessions WHERE id=${uuid(req.query.id)}::uuid AND expires_at>clock_timestamp()`;
+        if(!rows.length)throw problem(410,'Esta toma de asistencia terminó o fue eliminada.');
+        const s=rows[0];
         // QR propio: no envía enlaces ni nombres a servicios externos.
         // Un QR necesita una URL absoluta para que funcione desde la cámara del teléfono.
         const host=String(req.headers.host||'');
         if (!/^[a-z0-9.:[\]-]+$/i.test(host)) throw problem(400,'Dominio no válido.');
         const scheme=process.env.VERCEL || req.headers['x-forwarded-proto']==='https'?'https':'http';
-        const absolute=await QRCode.toString(`${scheme}://${host}/asistencia/registrar.html?token=${req.query.token}`,{type:'svg',width:320,margin:4,errorCorrectionLevel:'M'});
+        const absolute=await QRCode.toString(`${scheme}://${host}/asistencia/registrar.html?token=${s.token}`,{type:'svg',width:320,margin:4,errorCorrectionLevel:'M'});
         res.setHeader('Content-Type','image/svg+xml'); return res.status(200).send(absolute);
       }
       if (action==='data' || action==='export') {
         const data=await report(sql,req.query);
         if (action==='data') return reply(res,200,data);
-        const buffer=await exportWorkbook(data.students,data.sessions,data.records);
+        const buffer=await exportWorkbook(data.students,data.sessions,data.records,data.dailyRecords);
         const suffix=[req.query.date||'todas',req.query.module?`modulo-${req.query.module}`:''].filter(Boolean).join('-');
         res.setHeader('Content-Type','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition',`attachment; filename="asistencia-${suffix}.xlsx"`);
@@ -88,16 +101,26 @@ export function createHandler(getDb = db) {
       const b=body(req,8000);
       if (action==='activate') {
         const date=monday(b.date), module=integer(b.module,1,3,'Módulo'), minutes=integer(b.minutes,1,240,'Minutos');
-        if (typeof b.requireLocation!=='boolean' || typeof b.replace!=='boolean') throw problem(400,'Configuración no válida.');
+        if (typeof b.requireLocation!=='boolean' || typeof b.replace!=='boolean' || typeof b.showButton!=='boolean') throw problem(400,'Configuración no válida.');
         const p=coordinates(b.latitude,b.longitude);
         if (customCoordinates(p) && b.confirmCustom!==true) throw problem(409,'Las coordenadas no son las de la UAH. Confirma su uso.');
         const expected=b.replace?uuid(b.expectedToken):null;
-        const rows=await sql`SELECT asistencia_activate(${randomUUID()}::uuid,${date}::date,${module},${randomUUID()}::uuid,${minutes},${b.requireLocation},${p.latitude},${p.longitude},${b.replace},${expected}::uuid) AS result`;
+        const rows=await sql`SELECT asistencia_activate(${randomUUID()}::uuid,${date}::date,${module},${randomUUID()}::uuid,${minutes},${b.requireLocation},${p.latitude},${p.longitude},${b.replace},${expected}::uuid,${b.showButton}::boolean) AS result`;
         return reply(res,200,{ok:true,session:sessionView(dbResult(rows).session,Date.now(),true)});
       }
       if (action==='extend') {
         const rows=await sql`SELECT asistencia_extend(${uuid(b.id)}::uuid,${uuid(b.token)}::uuid,${integer(b.minutes,1,240,'Minutos')}::int) AS result`;
         return reply(res,200,{ok:true,session:sessionView(dbResult(rows).session,Date.now(),true)});
+      }
+      if(action==='button'){
+        if(typeof b.showButton!=='boolean')throw problem(400,'Configuración del botón no válida.');
+        const rows=await sql`SELECT asistencia_button(${uuid(b.id)}::uuid,${uuid(b.token)}::uuid,${b.showButton}::boolean) AS result`;
+        return reply(res,200,{ok:true,session:sessionView(dbResult(rows).session,Date.now(),true)});
+      }
+      if(action==='delete'){
+        if(b.confirmDelete!==true)throw problem(400,'Confirma el borrado de la toma de asistencia.');
+        const result=dbResult(await sql`SELECT asistencia_delete(${uuid(b.id)}::uuid,${uuid(b.token)}::uuid) AS result`);
+        return reply(res,200,{ok:true,...result});
       }
       if (action==='submit') {
         const token=uuid(b.token),student=integer(b.studentId,1,1000000,'Estudiante'),device=getDevice(req,res);

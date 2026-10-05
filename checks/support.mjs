@@ -15,6 +15,8 @@ export function sqlFor(pg) {
 export async function testDatabase() {
   const pg=new PGlite();
   await pg.exec(await readFile(new URL('../sql/asistencia.sql',import.meta.url),'utf8'));
+  await pg.exec(await readFile(new URL('../sql/asistencia-borrar.sql',import.meta.url),'utf8'));
+  await pg.exec(await readFile(new URL('../sql/asistencia-boton.sql',import.meta.url),'utf8'));
   return {pg,sql:sqlFor(pg)};
 }
 export function response() {
