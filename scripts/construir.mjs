@@ -1,6 +1,6 @@
 /* =========================================================
    Construye el sitio en la carpeta publicado/
-   No necesita instalar dependencias: sólo Node >= 18.
+   Requiere npm install y Node 22. Copia Leaflet para el mapa de Asistencia.
 
    Qué hace:
    1. lee contenido.json
@@ -471,6 +471,18 @@ function pintarPreguntasPractica() {
 
 /* ---------- construcción ---------- */
 
+function pintarAsistencia() {
+  return `  <section class="seccion" id="asistencia">
+    <div class="contenedor">
+      <div class="seccion__encabezado"><h2 class="seccion__titulo">Asistencia</h2></div>
+      <div class="practica__fila">
+        <div class="practica__cuerpo"><p class="seccion__nota practica__bajada">Registro de asistencia por fecha y módulo.</p></div>
+        <a class="practica__accion" href="/asistencia/">Abrir Asistencia ${FLECHA}</a>
+      </div>
+    </div>
+  </section>`;
+}
+
 async function construir() {
   const contenido = JSON.parse(await readFile(path.join(raiz, 'contenido.json'), 'utf8'));
   const plantilla = await readFile(path.join(raiz, 'sitio', 'plantilla.html'), 'utf8');
@@ -495,7 +507,8 @@ async function construir() {
   const tieneRecursos = recursos.literatura.length || recursos.videos.length || recursos.otrasClases.length || recursos.juegos.length || recursos.otrosSitios.length;
   const bloques = [
     pintarSesiones(secciones.sesiones || { titulo: 'Sesiones' }, sesiones),
-    pintarPreguntasPractica()
+    pintarPreguntasPractica(),
+    pintarAsistencia()
   ];
   if (tieneRecursos) bloques.push(pintarRecursos(secciones.recursos || { titulo: 'Recursos' }, recursos));
 
@@ -504,6 +517,7 @@ async function construir() {
   ];
   if (tieneRecursos) enlaces.push(`<a href="#recursos">${escapar((secciones.recursos || {}).titulo || 'Recursos')}</a>`);
   enlaces.push(`<a href="/tests/">Preguntas de práctica</a>`);
+  enlaces.push(`<a href="/asistencia/">Asistencia</a>`);
 
   const ficha = (curso.ficha || [])
     .map((f) => `<div><dt>${escapar(f.termino)}</dt><dd>${escapar(f.dato)}</dd></div>`)
@@ -540,6 +554,14 @@ async function construir() {
   await copyFile(path.join(raiz, 'tranvia', 'index.html'), path.join(salida, 'tranvia', 'index.html'));
   // Tests formativos. Módulo independiente listo para instrumentación remota posterior.
   await copiarCarpeta(path.join(raiz, 'tests'), path.join(salida, 'tests'));
+  await copiarCarpeta(path.join(raiz, 'asistencia'), path.join(salida, 'asistencia'));
+  const leafletOrigen = path.join(raiz, 'node_modules', 'leaflet', 'dist');
+  const leafletSalida = path.join(salida, 'asistencia', 'vendor', 'leaflet');
+  await mkdir(leafletSalida, { recursive: true });
+  for (const activo of ['leaflet.js', 'leaflet.css']) {
+    await copyFile(path.join(leafletOrigen, activo), path.join(leafletSalida, activo));
+  }
+  await copiarCarpeta(path.join(leafletOrigen, 'images'), path.join(leafletSalida, 'images'));
 
   const archivosRecursos = [...recursos.literatura, ...recursos.otrasClases];
   const faltantes = archivosRecursos.filter((x) => !x.existe);

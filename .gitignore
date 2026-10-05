@@ -5,3 +5,9 @@ node_modules/
 Thumbs.db
 LEEME.md
 LEEME.txt
+.env
+.env.*
+!.env.example
+.asistencia-test/
+docs/
+output/
