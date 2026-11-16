@@ -839,6 +839,302 @@ section.slide[data-index="30"] .media-grid.two{position:relative;top:-20px}
 @media print {
   #deck > .slide {-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
 }
+</style><style id="s14-typographic-only">/* Composición tipográfica: reemplazo exclusivo de estilos, 2026.
+   Las agrupaciones se resuelven con ritmo, contraste y blancos, no tarjetas,
+   filetes repetidos, barras de acento o contenedores de dashboard. */
+
+/* Superficie editorial estable. El capítulo se reconoce por tinta, no por bandas. */
+#deck > .slide { --editorial-muted: #535a55; }
+#deck > .slide::before { height:2px !important; background:var(--chapter-accent) !important; }
+#deck > .slide:not(.cover):not(.section):not(.closing):not(.end):not(.story):not(.prompt) {
+  background:#f2ebdf !important;
+  box-shadow:none !important;
+}
+#deck > .slide.section,
+#deck > .slide.cover,
+#deck > .slide.closing,
+#deck > .slide.end {
+  background:var(--chapter-dark) !important;
+  box-shadow:none !important;
+}
+#deck > .slide:not(.cover):not(.section):not(.closing):not(.end):not(.story):not(.prompt)::after {
+  border:0 !important;
+  padding:0 !important;
+  opacity:.55 !important;
+  font-size:12px !important;
+  letter-spacing:.08em !important;
+}
+#deck > .slide .section-inline,
+#deck > .slide:not(.cover):not(.section):not(.closing):not(.end):not(.story):not(.prompt) .section-inline {
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  font-weight:500 !important;
+  letter-spacing:.035em;
+}
+#deck > .slide.section::after,
+#deck > .slide.cover::after,
+#deck > .slide.closing::after,
+#deck > .slide.end::after {
+  font-size:13px !important;
+  letter-spacing:.09em !important;
+  opacity:.65 !important;
+}
+#deck > .slide h1 { text-wrap:balance; }
+
+/* Paneles ya no son cajas ni unidades de interfaz. Sólo columnas de lectura. */
+#deck > .slide .cols,
+#deck > .slide .cols.two,
+#deck > .slide .cols.three {gap:58px !important; margin-top:38px !important;}
+#deck > .slide .cols.three {gap:40px !important;}
+#deck > .slide .cols .panel,
+#deck > .slide .panel {
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  padding:0 !important;
+  margin:0 !important;
+  min-width:0;
+}
+#deck > .slide .panel h3 {
+  border:0 !important;
+  margin:0 0 22px !important;
+  color:var(--chapter-ink,#4f4b42) !important;
+  font-size:26px !important;
+  line-height:1.18 !important;
+  font-weight:650 !important;
+  letter-spacing:-.025em;
+}
+#deck > .slide .panel p {
+  margin:0 0 16px !important;
+  font-size:26px !important;
+  line-height:1.43 !important;
+  color:#303735 !important;
+}
+#deck > .slide .cols.three .panel p {font-size:24px !important;}
+#deck > .slide.story .panel h3,
+#deck > .slide.story .panel p,
+#deck > .slide.prompt .panel h3,
+#deck > .slide.prompt .panel p {color:#f1eee5 !important;}
+
+/* Filas de conceptos: texto enfrentado en una retícula sin separadores automáticos. */
+#deck > .slide .stack {
+  border:0 !important;
+  background:none !important;
+  box-shadow:none !important;
+  margin-top:34px !important;
+  gap:22px !important;
+}
+#deck > .slide .stack-row {
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  display:grid !important;
+  grid-template-columns:290px minmax(0,1fr) !important;
+  gap:46px !important;
+  align-items:baseline !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+#deck > .slide .stack-head {
+  font-size:23px !important;
+  line-height:1.3 !important;
+  font-weight:650 !important;
+  letter-spacing:-.025em;
+  color:var(--chapter-ink,#4f4b42) !important;
+}
+#deck > .slide .stack-body {
+  font-size:25px !important;
+  line-height:1.38 !important;
+  color:#343b37 !important;
+}
+
+/* Datos de un paper: números y notas, sin cards de KPI. */
+#deck > .slide .figures {
+  gap:65px !important;
+  margin:24px 0 39px !important;
+  background:transparent !important;
+}
+#deck > .slide .figures .figure {
+  border:0 !important;
+  border-radius:0 !important;
+  background:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+#deck > .slide .figure strong {
+  font-size:91px !important;
+  line-height:1.03 !important;
+  letter-spacing:-.07em !important;
+  font-weight:560 !important;
+  color:var(--chapter-ink,#4f4b42) !important;
+}
+#deck > .slide .figure span {
+  font-size:23px !important;
+  line-height:1.37 !important;
+  margin-top:12px !important;
+  color:#39413d !important;
+}
+
+/* Énfasis editorial con tipografía solamente. Sin barra vertical o banda. */
+#deck > .slide .bottom-emphasis,
+#deck > .slide .after-question,
+#deck > .slide .transcript-result {
+  border:0 !important;
+  border-left:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  max-width:1250px;
+}
+#deck > .slide .bottom-emphasis {
+  margin-top:30px !important;
+  font-size:29px !important;
+  font-weight:600 !important;
+  line-height:1.35 !important;
+  letter-spacing:-.018em !important;
+  color:#222b28 !important;
+}
+#deck > .slide .after-question {font-weight:430 !important;}
+#deck > .slide .question {border:0 !important; background:none !important; padding:0 !important;}
+
+/* Transcripciones como documento, no burbujas o tarjetas. */
+#deck > .slide .transcript-item,
+#deck > .slide .transcript-item:first-child {
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  margin:0 0 24px !important;
+}
+#deck > .slide .transcript-speaker {
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600 !important;
+  color:var(--chapter-ink,#514735) !important;
+  letter-spacing:.05em !important;
+}
+#deck > .slide .transcript-result {margin-top:25px !important;}
+#deck > .slide .case-aside,
+#deck > .slide .case-record,
+#deck > .slide .documentary-frame {
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+}
+
+/* Recursos visuales: el documento manda, sin contenedor decorativo. */
+#deck > .slide .source-card,
+#deck > .slide .historical-media,
+#deck > .slide .click-media,
+#deck > .slide .media-frame {
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+}
+#deck > .slide .source-card {padding:0 !important;}
+#deck > .slide .historical-media {padding:13px !important;}
+#deck > .slide .historical-media img {max-height:100%;}
+#deck > .slide .source-card figcaption,
+#deck > .slide .historical-media figcaption {
+  border:0 !important;
+  padding:0 !important;
+  font-size:14px !important;
+  color:#66665e !important;
+}
+
+/* Cronología sin marcos ni bandas horizontales. */
+#deck > .slide .history-timeline {gap:20px !important; margin-top:35px !important;}
+#deck > .slide .history-timeline > div {
+  border:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border-radius:0 !important;
+  gap:30px !important;
+}
+#deck > .slide .history-timeline b {font-weight:650 !important; font-size:23px !important;}
+#deck > .slide .history-timeline span {font-size:24px !important; line-height:1.3 !important;}
+
+/* Citas y anexos como aparato crítico del texto, no controles grandes. */
+#deck > .slide .concept-link,
+#deck > .slide .ref-cite {
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  box-shadow:none !important;
+  text-decoration:underline !important;
+  text-decoration-thickness:1px !important;
+  text-underline-offset:4px !important;
+  text-decoration-color:color-mix(in srgb,var(--chapter-accent,#8c734c) 55%,transparent) !important;
+}
+#deck > .slide .concept-link:hover,
+#deck > .slide .concept-link:focus-visible,
+#deck > .slide .ref-cite:hover,
+#deck > .slide .ref-cite:focus-visible {
+  text-decoration-thickness:2px !important;
+  background:transparent !important;
+  outline-offset:4px;
+}
+#deck > .slide .record-link {
+  background:transparent !important;
+  box-shadow:none !important;
+  border:0 !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  display:inline !important;
+  text-decoration:underline !important;
+  text-underline-offset:5px !important;
+  text-decoration-thickness:1px !important;
+  color:var(--chapter-ink,#514735) !important;
+}
+#deck > .slide .record-link:hover {background:transparent !important;}
+#deck > .slide .record-play {display:none !important;}
+.concept-dialog {
+  background:#f3eee6 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:-8px 0 38px rgba(0,0,0,.10) !important;
+}
+.concept-dialog .concept-toolbar {border:0 !important;}
+.concept-dialog .concept-close {border-radius:0 !important;box-shadow:none !important;}
+.concept-dialog .annex-source {border-top:0 !important;padding-top:0 !important;margin-top:28px !important;}
+
+/* Componentes auxiliares no convertidos en tarjetas: composición desnuda. */
+#deck > .slide .flowbox,
+#deck > .slide .case-reference-list > *,
+#deck > .slide .media-note,
+#deck > .slide .prompt-extra {
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+/* El pie no actúa como un panel independiente. */
+#deck > .slide .footer {
+  border-top:1px solid rgba(100,100,90,.14) !important;
+  box-shadow:none !important;
+}
+
+/* En orientación vertical conservamos los cambios puramente visuales, sin alterar la navegación. */
+@media (max-width:900px), (orientation:portrait) and (max-width:1100px) {
+  #deck > .slide::before {height:2px !important;}
+  #deck > .slide:not(.cover):not(.section):not(.closing):not(.end):not(.story):not(.prompt) {
+    background:#f2ebdf !important;
+  }
+  #deck > .slide .section-inline {border:0 !important; padding:0 !important;}
+  #deck > .slide .cols .panel,
+  #deck > .slide .cols .panel + .panel {border:0 !important;padding:0 !important;}
+  #deck > .slide .stack-row {display:block !important; margin-bottom:20px !important;}
+  #deck > .slide .stack-head {margin-bottom:7px !important;}
+  #deck > .slide .figure strong {font-size:clamp(46px,12vw,82px) !important;}
+  #deck > .slide .panel p {font-size:inherit !important;}
+}
 </style></head><body>
 <main id="deck"><section aria-label="Lámina 1: Inteligencia artificial y psicología" class="slide cover" data-chapter="0" data-chapter-local="1" data-index="0" data-section-number="01" data-section-short="RELATOS" style="--chapter-accent:#8C734C;--chapter-ink:#5D471F;--chapter-dark:#262C2B;--chapter-soft:#E9D3A6;--chapter-wash:#F4ECDD;">
 <div class="kicker">ÉTICA Y PSICOLOGÍA · SESIÓN 14 · 2026</div>
